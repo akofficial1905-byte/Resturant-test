@@ -1,0 +1,26 @@
+// server.js
+const express = require('express');
+const path = require('path');
+const bodyParser = require('body-parser');
+const app = express();
+const PORT = process.env.PORT || 3000;
+
+// Serve static files from /public
+app.use(express.static(path.join(__dirname, 'public')));
+app.use(bodyParser.json());
+
+// API endpoint example
+app.post('/api/orders', (req, res) => {
+  // Save order logic here
+  res.json({ id: 'ORDER123', ...req.body });
+});
+
+// Root route serves index.html
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public/index.html'));
+});
+
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
+});
+

@@ -1,0 +1,218 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>YOUR RESTAURANT NAME — Manager Portal</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="/socket.io/socket.io.js"></script>
+  <style>
+    .order-type-badge { font-size:12px; font-weight:bold; border-radius:7px; padding:2px 8px; margin-right:6px }
+    .order-type-dinein { background:#fbbf24; color:#222; }
+    .order-type-takeaway { background:#34d399; color:#222; }
+    .order-type-delivery { background:#60a5fa; color:#fff; }
+    .card-btn { transition: transform 0.1s; }
+    .card-btn:hover { transform: scale(1.05); }
+  </style>
+</head>
+<body class="bg-gradient-to-b from-slate-900 via-gray-900 to-black text-gray-100 min-h-screen">
+  <div class="max-w-7xl mx-auto p-6">
+    <header class="flex justify-between items-center mb-6">
+      <div>
+        <h1 class="text-4xl font-extrabold text-amber-300">YOUR RESTAURANT NAME — Manager</h1>
+        <p class="text-sm text-gray-400">
+          Contact: <b>+91-XXXXXXXXXX</b> • Date wise orders, order type & status
+        </p>
+      </div>
+      <a href="/index.html" class="px-4 py-2 bg-gray-800 rounded text-gray-200">Customer View</a>
+    </header>
+    <div class="bg-gray-800 rounded-2xl p-4 mb-6 flex justify-between items-center">
+      <div>
+        <label class="text-sm text-gray-400 mr-2">Select Date:</label>
+        <input id="datePicker" type="date" class="bg-gray-900 border border-gray-700 p-2 rounded" />
+      </div>
+      <div class="flex flex-col text-right gap-2">
+        <div class="text-sm text-gray-400">Total Orders: <span id="totalOrders" class="font-bold text-amber-300">0</span></div>
+        <div class="text-sm text-gray-400">Revenue: ₹<span id="totalRevenue" class="font-bold text-green-300">0</span></div>
+        <div class="flex gap-3">
+          <span class="order-type-badge order-type-dinein">Dine-in: <span id="countDinein">0</span></span>
+          <span class="order-type-badge order-type-takeaway">Takeaway: <span id="countTakeaway">0</span></span>
+          <span class="order-type-badge order-type-delivery">Delivery: <span id="countDelivery">0</span></span>
+        </div>
+      </div>
+    </div>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <section>
+        <h2 class="text-xl font-semibold text-amber-200 mb-4">Upcoming / Incoming Orders</h2>
+        <div id="incoming" class="space-y-4"></div>
+      </section>
+      <section>
+        <h2 class="text-xl font-semibold text-green-300 mb-4">Delivered Orders</h2>
+        <div id="delivered" class="space-y-4"></div>
+      </section>
+    </div>
+  </div>
+  <script>
+    const socket = io();
+    const datePicker = document.getElementById('datePicker');
+    datePicker.value = new Date().toISOString().slice(0,10);
+
+    async function fetchOrders(date) {
+      const res = await fetch('/api/orders?date=' + date);
+      const orders = await res.json();
+      render(orders);
+    }
+
+    function render(orders) {
+      // summary stats
+      const dinein = orders.filter(o => o.orderType === 'dinein');
+      const takeaway = orders.filter(o => o.orderType === 'takeaway');
+      const delivery = orders.filter(o => o.orderType === 'delivery');
+      document.getElementById('totalOrders').innerText = orders.length;
+      document.getElementById('totalRevenue').innerText = orders.reduce((s,o)=>s+o.total,0);
+      document.getElementById('countDinein').innerText = dinein.length;
+      document.getElementById('countTakeaway').innerText = takeaway.length;
+      document.getElementById('countDelivery').innerText = delivery.length;
+
+      // organize orders
+      const incoming = orders.filter(o => o.status !== 'delivered' && o.status !== 'deleted');
+      const delivered = orders.filter(o => o.status === 'delivered');
+
+      document.getElementById('incoming').innerHTML = incoming.map(o => `
+        <div class="bg-gray-900 rounded-lg border border-amber-400 p-4 shadow">
+          <div class="flex justify-between items-start">
+            <div>
+              <span class="order-type-badge order-type-${o.orderType}">${o.orderType.charAt(0).toUpperCase() + o.orderType.slice(1)}</span>
+              <span class="font-bold text-lg">${o.customerName}</span>
+              <div class="text-xs text-gray-400">${new Date(o.createdAt).toLocaleString()}</div>
+              <div class="text-xs text-gray-400 mt-1">${renderOrderDetails(o)}</div>
+            </div>
+            <div class="text-right">
+              <div class="font-semibold text-amber-200">₹${o.total}</div>
+              <div class="text-xs text-gray-400">${o.mobile ? "📱 " + o.mobile : ""}</div>
+            </div>
+          </div>
+          <ul class="mt-3 text-sm text-gray-200">
+            ${o.items.map(it=>`<li>• ${it.qty} × ${it.name} — ₹${it.price}</li>`).join('')}
+          </ul>
+          <div class="mt-3 flex gap-2">
+            <button class="card-btn px-3 py-1 bg-blue-600 rounded" onclick="updateStatus('${o.id}','preparing')">Preparing</button>
+            <button class="card-btn px-3 py-1 bg-green-600 rounded" onclick="updateStatus('${o.id}','delivered')">Delivered</button>
+            <button class="card-btn px-3 py-1 bg-red-600 rounded" onclick="deleteOrder('${o.id}')">Delete</button>
+            <button class="card-btn px-3 py-1 bg-amber-400 text-black rounded font-bold" onclick="printOrder('${o.id}')">Print</button>
+          </div>
+        </div>
+      `).join('');
+
+      document.getElementById('delivered').innerHTML = delivered.map(o => `
+        <div class="bg-gray-800 rounded-lg border border-gray-700 p-4 shadow">
+          <div class="flex justify-between items-start">
+            <div>
+              <span class="order-type-badge order-type-${o.orderType}">${o.orderType.charAt(0).toUpperCase() + o.orderType.slice(1)}</span>
+              <span class="font-bold text-lg">${o.customerName}</span>
+              <div class="text-xs text-gray-400">${new Date(o.createdAt).toLocaleString()}</div>
+              <div class="text-xs text-gray-400 mt-1">${renderOrderDetails(o)}</div>
+            </div>
+            <div class="text-right">
+              <div class="font-semibold text-green-300">₹${o.total}</div>
+              <div class="text-xs text-gray-400">${o.mobile ? "📱 " + o.mobile : ""}</div>
+            </div>
+          </div>
+          <ul class="mt-3 text-sm text-gray-300">
+            ${o.items.map(it=>`<li>• ${it.qty} × ${it.name} — ₹${it.price}</li>`).join('')}
+          </ul>
+          <div class="mt-3 flex gap-2">
+            <button class="card-btn px-3 py-1 bg-amber-400 text-black rounded font-bold" onclick="printOrder('${o.id}')">Print</button>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function renderOrderDetails(o) {
+      if(o.orderType === 'dinein') {
+        return `Table: ${o.tableNumber || '—'}`;
+      } else if(o.orderType === 'takeaway' || o.orderType === 'delivery') {
+        return `Address: ${o.address || '—'}`;
+      }
+      return '';
+    }
+
+    async function updateStatus(id, status) {
+      await fetch('/api/orders/' + id + '/status', {
+        method: 'PATCH',
+        headers: { 'Content-Type':'application/json' },
+        body: JSON.stringify({ status })
+      });
+    }
+
+    async function deleteOrder(id) {
+      if (!confirm('Delete this order?')) return;
+      await fetch('/api/orders/' + id + '/status', {
+        method: 'PATCH',
+        headers: { 'Content-Type':'application/json' },
+        body: JSON.stringify({ status: 'deleted' })
+      });
+    }
+
+    // --- PATCHED PRINT FUNCTION FOR RELIABILITY AND INCLUDES ORDER TYPE ---
+    window.printOrder = function(orderId) {
+      let btn = document.querySelector(`[onclick="printOrder('${orderId}')"]`);
+      let box = btn ? btn.closest('.bg-gray-900, .bg-gray-800') : null;
+      if (!box) return;
+
+      const orderType = box.querySelector('.order-type-badge')?.textContent || '';
+      const customerName = box.querySelector('.font-bold.text-lg')?.textContent || '';
+      const tableDetail = box.querySelector('.text-xs.text-gray-400.mt-1')?.textContent || '';
+      const total = box.querySelector('.font-semibold')?.textContent?.replace(/[^\d]/g,'') || '';
+      const items = [...box.querySelectorAll('ul li')].map(li => li.textContent);
+
+      let itemRows = items.map(txt => {
+        let m = txt.match(/(\d+)\s*[×x]\s*(.+?)\s*—\s*₹(\d+)/i);
+        if (m) {
+          return `<tr>
+            <td>${m[2]}</td>
+            <td style="text-align:center;">${m[1]}</td>
+            <td style="text-align:right;">₹${m[3]}</td>
+          </tr>`;
+        }
+        return '';
+      }).join('');
+
+      let win = window.open('', '', 'height=700,width=400');
+      win.document.write('<html><head><title>Order Print</title>');
+      win.document.write('<style>body{font-family:monospace,Arial,sans-serif;margin:30px;color:#222;background:#fff;} .bill-title{font-size:1.6em;font-weight:bold;text-align:center;color:#42210b;margin-bottom:12px;} .bill-section{margin-bottom:12px;font-size:1.05em;} .bill-table{width:100%;margin-top:7px;border-collapse:collapse;} .bill-table th,.bill-table td{border:1px solid #f3c770;padding:5px 7px;text-align:left;} .bill-table th{background:#ffd25a;color:#222;font-weight:bold;} .bill-total{font-size:1.1em;font-weight:700;text-align:right;margin-top:16px;} @media print{body{background:#fff;color:#222;}}</style></head><body>');
+      win.document.write(`
+        <div class="bill-title">YOUR RESTAURANT NAME</div>
+        <div class="bill-section"><b>Order Type:</b> ${orderType}</div>
+        <div class="bill-section"><b>Customer Name:</b> ${customerName}</div>
+        <div class="bill-section"><b>${tableDetail}</b></div>
+        <hr>
+        <strong>Order Details:</strong>
+        <table class="bill-table">
+          <thead>
+            <tr>
+              <th>Item</th><th>Qty</th><th>Price</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${itemRows}
+          </tbody>
+        </table>
+        <div class="bill-total">Total: ₹${total}</div>
+      `);
+      win.document.write('</body></html>');
+      win.document.close();
+      win.onload = function() { win.focus(); win.print(); setTimeout(()=>win.close(), 700);}
+    }
+    // -------------------------------------------------------------
+
+    socket.on('newOrder', (o) => {
+      if ((o.createdAt || '').slice(0,10) === datePicker.value) fetchOrders(datePicker.value);
+    });
+    socket.on('orderUpdated', (o) => { fetchOrders(datePicker.value); });
+    datePicker.onchange = () => fetchOrders(datePicker.value);
+    fetchOrders(datePicker.value);
+  </script>
+</body>
+</html>
+
