@@ -1,4 +1,3 @@
-// server.js
 const express = require('express');
 const http = require('http');
 const socketio = require('socket.io');
@@ -8,6 +7,8 @@ const path = require('path');
 const app = express();
 const server = http.createServer(app);
 const io = socketio(server);
+
+const PORT = process.env.PORT || 3000;
 
 app.use(cors());
 app.use(express.json());
@@ -60,8 +61,13 @@ app.patch('/api/orders/:id/status', (req, res) => {
   }
 });
 
-server.listen(3000, () => {
-  console.log('Server running at http://localhost:3000/');
+// Serve index.html at the root URL
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public/index.html'));
+});
+
+server.listen(PORT, () => {
+  console.log(`Server running at http://localhost:${PORT}/`);
   console.log('Open index.html and manager.html in browser');
 });
 
