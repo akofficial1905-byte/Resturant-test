@@ -96,10 +96,10 @@
             ${o.items.map(it=>`<li>• ${it.qty} × ${it.name} — ₹${it.price}</li>`).join('')}
           </ul>
           <div class="mt-3 flex gap-2">
-            <button class="card-btn px-3 py-1 bg-blue-600 rounded" onclick="updateStatus('${o.id}','preparing')">Preparing</button>
-            <button class="card-btn px-3 py-1 bg-green-600 rounded" onclick="updateStatus('${o.id}','delivered')">Delivered</button>
-            <button class="card-btn px-3 py-1 bg-red-600 rounded" onclick="deleteOrder('${o.id}')">Delete</button>
-            <button class="card-btn px-3 py-1 bg-amber-400 text-black rounded font-bold" onclick="printOrder('${o.id}')">Print</button>
+            <button class="card-btn px-3 py-1 bg-blue-600 rounded" onclick="updateStatus('${o._id}','preparing')">Preparing</button>
+            <button class="card-btn px-3 py-1 bg-green-600 rounded" onclick="updateStatus('${o._id}','delivered')">Delivered</button>
+            <button class="card-btn px-3 py-1 bg-red-600 rounded" onclick="deleteOrder('${o._id}')">Delete</button>
+            <button class="card-btn px-3 py-1 bg-amber-400 text-black rounded font-bold" onclick="printOrder('${o._id}')">Print</button>
           </div>
         </div>
       `).join('');
@@ -122,7 +122,7 @@
             ${o.items.map(it=>`<li>• ${it.qty} × ${it.name} — ₹${it.price}</li>`).join('')}
           </ul>
           <div class="mt-3 flex gap-2">
-            <button class="card-btn px-3 py-1 bg-amber-400 text-black rounded font-bold" onclick="printOrder('${o.id}')">Print</button>
+            <button class="card-btn px-3 py-1 bg-amber-400 text-black rounded font-bold" onclick="printOrder('${o._id}')">Print</button>
           </div>
         </div>
       `).join('');
