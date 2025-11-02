@@ -10,7 +10,7 @@ const server = http.createServer(app);
 const io = socketio(server);
 const PORT = process.env.PORT || 3000;
 
-// FINAL MongoDB Atlas connection string (fill password as needed)
+// MongoDB Atlas connection string
 const MONGO_URI = 'mongodb+srv://akofficial1905_db_user:FbqAuhCOkXLN0XH1@restaurantdata.kxozvbc.mongodb.net/?appName=RESTAURANTDATA';
 
 mongoose.connect(MONGO_URI, {
@@ -54,13 +54,17 @@ app.get('/menu.json', (req, res) => {
   res.sendFile(path.join(__dirname, 'public/menu.json'));
 });
 
-// Get orders for a date
+// Get orders for a date (IST Timezone)
 app.get('/api/orders', async (req, res) => {
-  const date = getToday(req.query.date);
-  const start = new Date(date);
-  const end = new Date(new Date(date).setDate(start.getDate() + 1));
+  // --- CHANGE STARTS HERE ---
+  const IST_OFFSET = 5.5 * 60 * 60 * 1000;
+  const nowIST = new Date(Date.now() + IST_OFFSET);
+  const date = getToday(req.query.date || nowIST.toISOString().slice(0, 10));
+  const start = new Date(Date.parse(date + 'T00:00:00+05:30'));
+  const end = new Date(Date.parse(date + 'T23:59:59+05:30'));
+  // --- CHANGE ENDS HERE ---
   const orders = await Order.find({
-    createdAt: { $gte: start, $lt: end },
+    createdAt: { $gte: start, $lte: end },
     status: { $ne: 'deleted' }
   });
   res.json(orders);
@@ -80,7 +84,7 @@ app.post('/api/orders', async (req, res) => {
 
 // Update status (preparing/delivered/deleted)
 app.patch('/api/orders/:id/status', async (req, res) => {
-  const order = await Order.findById(req.params.id);  // <-- notice: MongoDB uses _id, not plain id!
+  const order = await Order.findById(req.params.id);
   if (order) {
     order.status = req.body.status;
     await order.save();
@@ -91,7 +95,6 @@ app.patch('/api/orders/:id/status', async (req, res) => {
   }
 });
 
-// Serve index.html at the root URL
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'public/index.html'));
 });
