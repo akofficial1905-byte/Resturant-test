@@ -14,6 +14,11 @@
     .text-gray-300, .text-gray-400, .text-amber-200 { color: #ffd25a !important; }
     input { color: #222 !important; background: #ffd25a !important; font-weight: bold !important; }
     input::placeholder { color: #6d4f00 !important; opacity: 1 !important; font-weight: bold !important; }
+    @media (max-width:600px){
+      body { font-size: 1.15em; }
+      .menu-card { margin:8px 0; padding:12px; }
+      #cart-bar { right:10px !important; bottom:10px !important; }
+    }
   </style>
 </head>
 <body class="bg-gradient-to-br from-neutral-900 via-amber-900 to-neutral-800 min-h-screen text-gray-100">
@@ -50,6 +55,19 @@
         </div>
       </aside>
     </main>
+  </div>
+  <!-- Floating mobile cart/badge -->
+  <div id="cart-bar" style="position:fixed;bottom:20px;right:20px;z-index:999;">
+    <button onclick="scrollToCart()" style="background:#ffd25a; color:#222; border-radius:22px; box-shadow: 0 2px 8px #111; font-weight: bold;">
+      🛒 <span id="cart-count" style="background:red;color:white;border-radius:50%;padding:2px 7px;font-size:0.83em;">0</span>
+      Cart
+    </button>
+  </div>
+  <!-- Toast notification -->
+  <div id="added-toast"
+       style="display:none;position:fixed;bottom:72px;left:50%;transform:translateX(-50%);
+       background:#222;color:#ffd25a;padding:14px 28px;border-radius:22px;z-index:1001;font-size:1.15em;box-shadow:0 2px 10px #111;">
+    Added to cart!
   </div>
   <script>
     let menu = {}; let cart = [];
@@ -92,6 +110,7 @@
         for (const it of items) {
           const variants = it.variants || {};
           const opts = Object.entries(variants).map(([k,v]) => `<option value="${v}">${k} — ₹${v}</option>`).join('');
+          // FINAL: expects image as paneer.png, located in /public/images/paneer.png
           const imgSrc = it.image ? '/images/' + it.image : '/images/default.jpg';
           html += `
             <div class="bg-gray-800/40 p-3 rounded-xl flex flex-col justify-between items-center">
@@ -125,6 +144,8 @@
       if (existing) existing.qty++;
       else cart.push(item);
       renderCart();
+      updateCartCount();
+      showToast('Added to cart!');
     }
 
     function renderCart() {
@@ -152,6 +173,7 @@
       cart[index].qty += delta;
       if (cart[index].qty <= 0) { cart.splice(index,1); }
       renderCart();
+      updateCartCount();
     }
 
     document.getElementById('checkoutBtn').onclick = async () => {
@@ -178,11 +200,25 @@
           <p class="text-sm text-gray-600">Show this order ID to complete payment.</p>
           <div class="mt-4"><button onclick="document.getElementById('payModal').remove()" class="px-4 py-2 bg-gray-800 text-white rounded">Close</button></div>
         </div></div>`);
-      cart = []; renderCart();
+      cart = []; renderCart(); updateCartCount();
     };
+
+    function updateCartCount() {
+      document.getElementById('cart-count').textContent = cart.reduce((sum, c) => sum + c.qty, 0);
+    }
+    function showToast(msg) {
+      const toast = document.getElementById('added-toast');
+      toast.textContent = msg;
+      toast.style.display = 'block';
+      setTimeout(() => { toast.style.display = 'none'; }, 1400);
+    }
+    function scrollToCart() {
+      document.getElementById('cartList').scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
 
     initMenu();
     renderCart();
+    updateCartCount();
   </script>
 </body>
 </html>
