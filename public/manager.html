@@ -69,7 +69,7 @@
       </div>
     </section>
 
-    <!-- INSIGHTS -->
+    <!-- INSIGHT -->
     <section class="bg-white border-4 border-yellow-500 shadow-lg rounded-xl py-10 px-8 my-10">
       <h3 class="text-2xl font-extrabold text-yellow-800 mb-7 tracking-wider">📊 Detailed Insights & Comparison</h3>
       <form class="flex flex-wrap gap-7 items-center mb-4">
@@ -100,7 +100,7 @@
       <div id="insightResult" class="insight-box"></div>
     </section>
 
-    <!-- ORDERS -->
+    <!-- ORDER PANELS -->
     <div class="bg-gray-800 rounded-2xl p-4 mb-6 flex justify-between items-center">
       <div>
         <label class="text-sm text-gray-400 mr-2">Select Date:</label>
@@ -153,11 +153,16 @@
       const incoming = orders.filter(o => o.status !== 'delivered' && o.status !== 'deleted');
       const delivered = orders.filter(o => o.status === 'delivered');
 
-      document.getElementById('incoming').innerHTML = incoming.map(o => `
+      document.getElementById('incoming').innerHTML = incoming.map(o => renderCard(o)).join('');
+      document.getElementById('delivered').innerHTML = delivered.map(o => renderCard(o)).join('');
+    }
+
+    function renderCard(o) {
+      return `
         <div class="bg-gray-900 rounded-lg border border-amber-400 p-4 shadow">
           <div class="flex justify-between items-start">
             <div>
-              <span class="order-type-badge order-type-${o.orderType}">${o.orderType.charAt(0).toUpperCase() + o.orderType.slice(1)}</span>
+              <span class="order-type-badge order-type-${o.orderType}">${o.orderType.toUpperCase()}</span>
               <span class="font-bold text-lg">${o.customerName}</span>
               <div class="text-xs text-gray-400">${new Date(o.createdAt).toLocaleString()}</div>
               <div class="text-xs text-gray-400 mt-1">${renderOrderDetails(o)}</div>
@@ -171,38 +176,10 @@
             ${o.items.map(it=>`<li>• ${it.qty} × ${it.name} — ₹${it.price}</li>`).join('')}
           </ul>
           <div class="mt-3 flex gap-2">
-            <button class="card-btn px-3 py-1 bg-blue-600 rounded" onclick="updateStatus('${o._id}','preparing')">Preparing</button>
             <button class="card-btn px-3 py-1 bg-green-600 rounded" onclick="updateStatus('${o._id}','delivered')">Delivered</button>
-            <button class="card-btn px-3 py-1 bg-red-600 rounded" onclick="deleteOrder('${o._id}')">Delete</button>
-            <button class="card-btn px-3 py-1 bg-amber-400 text-black rounded font-bold" onclick="printOrder('${o._id}')">Print</button>
-            <button class="card-btn px-3 py-1 bg-teal-400 text-black rounded font-bold" onclick='printViaBluetooth(${JSON.stringify(o)})'>Bluetooth Print</button>
+            <button class="card-btn px-3 py-1 bg-amber-400 text-black rounded font-bold" onclick="bluetoothPrint(${JSON.stringify(o).replace(/"/g,'&quot;')})">Bluetooth Print</button>
           </div>
-        </div>
-      `).join('');
-
-      document.getElementById('delivered').innerHTML = delivered.map(o => `
-        <div class="bg-gray-800 rounded-lg border border-gray-700 p-4 shadow">
-          <div class="flex justify-between items-start">
-            <div>
-              <span class="order-type-badge order-type-${o.orderType}">${o.orderType.charAt(0).toUpperCase() + o.orderType.slice(1)}</span>
-              <span class="font-bold text-lg">${o.customerName}</span>
-              <div class="text-xs text-gray-400">${new Date(o.createdAt).toLocaleString()}</div>
-              <div class="text-xs text-gray-400 mt-1">${renderOrderDetails(o)}</div>
-            </div>
-            <div class="text-right">
-              <div class="font-semibold text-green-300">₹${o.total}</div>
-              <div class="text-xs text-gray-400">${o.mobile ? "📱 " + o.mobile : ""}</div>
-            </div>
-          </div>
-          <ul class="mt-3 text-sm text-gray-300">
-            ${o.items.map(it=>`<li>• ${it.qty} × ${it.name} — ₹${it.price}</li>`).join('')}
-          </ul>
-          <div class="mt-3 flex gap-2">
-            <button class="card-btn px-3 py-1 bg-amber-400 text-black rounded font-bold" onclick="printOrder('${o._id}')">Print</button>
-            <button class="card-btn px-3 py-1 bg-teal-400 text-black rounded font-bold" onclick='printViaBluetooth(${JSON.stringify(o)})'>Bluetooth Print</button>
-          </div>
-        </div>
-      `).join('');
+        </div>`;
     }
 
     function renderOrderDetails(o) {
@@ -219,85 +196,38 @@
       });
     }
 
-    async function deleteOrder(id) {
-      if (!confirm('Delete this order?')) return;
-      await fetch('/api/orders/' + id + '/status', {
-        method: 'PATCH',
-        headers: { 'Content-Type':'application/json' },
-        body: JSON.stringify({ status: 'deleted' })
+    // --- BLUETOOTH PRINT FUNCTION (RawBT Integration) ---
+    function bluetoothPrint(order) {
+      let receipt = '';
+      receipt += 'YOUR RESTAURANT NAME\n';
+      receipt += '==============================\n';
+      receipt += `Order Type: ${order.orderType.toUpperCase()}\n`;
+      receipt += `Customer: ${order.customerName}\n`;
+      if(order.tableNumber) receipt += `Table: ${order.tableNumber}\n`;
+      if(order.address) receipt += `Address: ${order.address}\n`;
+      receipt += '------------------------------\n';
+      receipt += 'ITEM               QTY   AMT\n';
+      receipt += '------------------------------\n';
+      order.items.forEach(it=>{
+        let name = it.name.padEnd(14,' ').slice(0,14);
+        let qty = String(it.qty).padEnd(4,' ');
+        let price = ('₹'+it.price).padStart(5,' ');
+        receipt += `${name}${qty}${price}\n`;
       });
+      receipt += '------------------------------\n';
+      receipt += `TOTAL: **₹${order.total}**\n`;
+      receipt += '------------------------------\n';
+      receipt += `Time: ${new Date(order.createdAt).toLocaleString()}\n`;
+      receipt += 'Thank you! Visit Again!\n\n\n';
+      window.location.href = `intent://print?text=${encodeURIComponent(receipt)}#Intent;scheme=rawbt;end`;
     }
 
-    // ✅ RawBT printing for HOIN printer
-    async function printViaBluetooth(order) {
-      try {
-        let receipt =
-          'YOUR RESTAURANT NAME\n' +
-          '----------------------\n' +
-          `Order Type: ${order.orderType}\nCustomer: ${order.customerName}\n`;
-
-        if (order.tableNumber) receipt += `Table: ${order.tableNumber}\n`;
-        if (order.address) receipt += `Address: ${order.address}\n`;
-        receipt += '----------------------\n';
-        receipt += order.items.map(it => `${it.qty} x ${it.name} ₹${it.price}`).join('\n');
-        receipt += '\n----------------------\n';
-        receipt += `Total: ₹${order.total}\nStatus: ${order.status}\n`;
-        receipt += `Time: ${new Date(order.createdAt).toLocaleString()}\n`;
-        receipt += '\nThank you! Visit Again\n\n\n';
-
-        window.location.href = `intent://print?text=${encodeURIComponent(receipt)}#Intent;scheme=rawbt;end`;
-      } catch (e) {
-        alert('Bluetooth print failed: ' + (e.message || e));
-      }
-    }
-
-    // Browser print
-    window.printOrder = function(orderId) {
-      let btn = document.querySelector(`[onclick="printOrder('${orderId}')"]`);
-      let box = btn ? btn.closest('.bg-gray-900, .bg-gray-800') : null;
-      if (!box) return;
-      const orderType = box.querySelector('.order-type-badge')?.textContent || '';
-      const customerName = box.querySelector('.font-bold.text-lg')?.textContent || '';
-      const tableDetail = box.querySelector('.text-xs.text-gray-400.mt-1')?.textContent || '';
-      const total = box.querySelector('.font-semibold')?.textContent?.replace(/[^\d]/g,'') || '';
-      const items = [...box.querySelectorAll('ul li')].map(li => li.textContent);
-      let itemRows = items.map(txt => {
-        let m = txt.match(/(\d+)\s*[×x]\s*(.+?)\s*—\s*₹(\d+)/i);
-        if (m) {
-          return `<tr><td>${m[2]}</td><td style="text-align:center;">${m[1]}</td><td style="text-align:right;">₹${m[3]}</td></tr>`;
-        }
-        return '';
-      }).join('');
-      let win = window.open('', '', 'height=700,width=400');
-      win.document.write('<html><head><title>Order Print</title>');
-      win.document.write('<style>body{font-family:monospace,Arial,sans-serif;margin:30px;color:#222;background:#fff;} .bill-title{font-size:1.6em;font-weight:bold;text-align:center;color:#42210b;margin-bottom:12px;} .bill-section{margin-bottom:12px;font-size:1.05em;} .bill-table{width:100%;margin-top:7px;border-collapse:collapse;} .bill-table th,.bill-table td{border:1px solid #f3c770;padding:5px 7px;text-align:left;} .bill-table th{background:#ffd25a;color:#222;font-weight:bold;} .bill-total{font-size:1.1em;font-weight:700;text-align:right;margin-top:16px;} @media print{body{background:#fff;color:#222;}}</style></head><body>');
-      win.document.write(`
-        <div class="bill-title">YOUR RESTAURANT NAME</div>
-        <div class="bill-section"><b>Order Type:</b> ${orderType}</div>
-        <div class="bill-section"><b>Customer Name:</b> ${customerName}</div>
-        <div class="bill-section"><b>${tableDetail}</b></div>
-        <hr>
-        <strong>Order Details:</strong>
-        <table class="bill-table">
-          <thead><tr><th>Item</th><th>Qty</th><th>Price</th></tr></thead>
-          <tbody>${itemRows}</tbody>
-        </table>
-        <div class="bill-total">Total: ₹${total}</div>
-      `);
-      win.document.write('</body></html>');
-      win.document.close();
-      win.onload = function() { win.focus(); win.print(); setTimeout(()=>win.close(), 700);}
-    }
-
-    // Live updates
+    // --- SOCKET EVENTS & DASHBOARD ---
     datePicker.onchange = () => fetchOrders(datePicker.value);
-    socket.on('newOrder', o => {
-      if ((o.createdAt || '').slice(0,10) === datePicker.value) fetchOrders(datePicker.value);
-    });
-    socket.on('orderUpdated', o => fetchOrders(datePicker.value));
+    socket.on('newOrder', (o) => { if ((o.createdAt || '').slice(0,10) === datePicker.value) fetchOrders(datePicker.value); });
+    socket.on('orderUpdated', () => fetchOrders(datePicker.value));
     fetchOrders(datePicker.value);
 
-    // Dashboard & insights
     const dashboardPeriod = document.getElementById('dashboardPeriod');
     const dashboardDate = document.getElementById('dashboardDate');
     dashboardDate.value = new Date().toISOString().slice(0,10);
@@ -313,86 +243,6 @@
     }
     dashboardPeriod.onchange = dashboardDate.onchange = renderDashboard;
     window.addEventListener('DOMContentLoaded', renderDashboard);
-
-    const compareBy = document.getElementById('compareBy');
-    const compareByLabel = document.getElementById('compareByLabel');
-    const insightType = document.getElementById('insightType');
-    const insightName = document.getElementById('insightName');
-    insightType.onchange = () => {
-      if(insightType.value === "compare_sales") compareByLabel.style.display = "";
-      else compareByLabel.style.display = "none";
-      insightName.style.display = (insightType.value === "customer_search") ? "" : "none";
-    }
-    let myCustomChart = null;
-    async function runInsight() {
-      const type = insightType.value, from = document.getElementById('insightFrom').value,
-            to = document.getElementById('insightTo').value, name = insightName.value, by = compareBy.value;
-      let html = '';
-      if(type === "compare_sales") {
-        let salesA, salesB, labelA, labelB;
-        if(by === "day") {
-          salesA = await fetch(`/api/dashboard/sales?period=day&date=${from}`).then(r=>r.json());
-          salesB = await fetch(`/api/dashboard/sales?period=day&date=${to}`).then(r=>r.json());
-          labelA = from; labelB = to;
-        } else if(by === "week") {
-          salesA = await fetch(`/api/dashboard/sales?period=week&date=${from}`).then(r=>r.json());
-          salesB = await fetch(`/api/dashboard/sales?period=week&date=${to}`).then(r=>r.json());
-          labelA = `Week of ${from}`; labelB = `Week of ${to}`;
-        } else if(by === "month") {
-          salesA = await fetch(`/api/dashboard/sales?period=month&date=${from}`).then(r=>r.json());
-          salesB = await fetch(`/api/dashboard/sales?period=month&date=${to}`).then(r=>r.json());
-          labelA = `Month: ${from.slice(0,7)}`; labelB = `Month: ${to.slice(0,7)}`;
-        }
-        html = `<div class="mb-6 flex items-center gap-10">
-          <div class="bg-yellow-200 rounded-xl p-4 shadow insight-big-value">${labelA}<br>₹${salesA.total||0}<br>
-            <span class="insight-mid-value">Orders: ${salesA.count||0}</span></div>
-          <div class="bg-yellow-200 rounded-xl p-4 shadow insight-big-value">${labelB}<br>₹${salesB.total||0}<br>
-            <span class="insight-mid-value">Orders: ${salesB.count||0}</span></div>
-        </div>
-        <div class="bg-white rounded-xl py-5 px-2 mb-4 shadow">
-          <canvas id="myChart" width="400" height="180"></canvas>
-        </div>`;
-        setTimeout(()=>{ renderChart([labelA,labelB], [salesA.total,salesB.total], 'Sales Comparison', 'bar'); },80);
-      }
-      else if(type === "repeat_customers") {
-        const data = await fetch(`/api/dashboard/repeatcustomers?from=${from}&to=${to}`).then(r=>r.json());
-        html = `<table class="insight-result-table table-auto w-full text-base font-semibold"><thead><tr><th>Name</th><th>Orders</th></tr></thead><tbody>`+
-          data.map(c=>`<tr><td>${c._id}</td><td>${c.orders}</td></tr>`).join('')+`</tbody></table>`;
-      } else if(type === "best_dish") {
-        const dish = await fetch(`/api/dashboard/topdish?from=${from}&to=${to}`).then(r=>r.json());
-        html = dish
-            ? `<div class="text-2xl font-bold text-yellow-800 mb-2">${dish._id}</div><div class="text-lg">Total Orders: <b>${dish.count}</b></div>`
-            : '<div class="text-base text-red-700">No data found in this time frame</div>';
-      } else if(type === "customer_search" && name) {
-        const data = await fetch(`/api/dashboard/repeatcustomers?from=${from}&to=${to}&name=${encodeURIComponent(name)}`).then(r=>r.json());
-        html = data && data.length 
-         ? `<div class="text-2xl text-yellow-900 font-bold mb-2">${name} visited <span class="font-extrabold text-yellow-900">${data[0].orders}</span> times</div>`
-         : `<div class="text-base text-red-700">${name} did not visit in this period.</div>`;
-      }
-      document.getElementById('insightResult').innerHTML = html;
-    }
-
-    function renderChart(labels, data, chartLabel, chartType = 'bar') {
-      const ctx = document.getElementById('myChart').getContext('2d');
-      if (myCustomChart) myCustomChart.destroy();
-      myCustomChart = new Chart(ctx, {
-        type: chartType,
-        data: {
-          labels: labels,
-          datasets: [{
-            label: chartLabel,
-            data: data,
-            backgroundColor: 'rgba(251,191,36, 0.7)',
-            borderColor: 'rgba(251,191,36, 1)',
-            borderWidth: 2
-          }]
-        },
-        options: {
-          responsive: true,
-          scales: { y: { beginAtZero: true } }
-        }
-      });
-    }
   </script>
 </body>
 </html>
