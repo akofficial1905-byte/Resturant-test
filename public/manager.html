@@ -7,6 +7,7 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="/socket.io/socket.io.js"></script>
+  <!-- ESC/POS Bluetooth support library -->
   <script src="https://cdn.jsdelivr.net/npm/escpos-web/dist/escpos-web.min.js"></script>
   <style>
     .order-type-badge { font-size:12px; font-weight:bold; border-radius:7px; padding:2px 8px; margin-right:6px }
@@ -25,6 +26,7 @@
 </head>
 <body class="bg-gradient-to-b from-slate-900 via-gray-900 to-black text-gray-100 min-h-screen">
   <div class="max-w-7xl mx-auto p-6">
+    <!-- ... existing headers, dashboards, insights, stats ... (no changes needed) ... -->
 
     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
       <section>
@@ -37,7 +39,6 @@
       </section>
     </div>
   </div>
-
   <script>
     const socket = io();
     const datePicker = document.getElementById('datePicker');
@@ -50,6 +51,8 @@
     }
 
     function render(orders) {
+      // ... dashboard stats code unchanged ...
+
       const incoming = orders.filter(o => o.status !== 'delivered' && o.status !== 'deleted');
       const delivered = orders.filter(o => o.status === 'delivered');
 
@@ -111,64 +114,51 @@
       return '';
     }
 
-    // 🔹 New Bluetooth print section for "Bluetooth Printer"
-    let printerCharacteristic = null;
-
-    async function connectBluetoothPrinter() {
-      const device = await navigator.bluetooth.requestDevice({
-        filters: [{ name: 'Bluetooth Printer' }],
-        optionalServices: [0xFFE0]
-      });
-      const server = await device.gatt.connect();
-      const service = await server.getPrimaryService(0xFFE0);
-      printerCharacteristic = await service.getCharacteristic(0xFFE1);
-      alert('Bluetooth Printer connected successfully!');
-      return printerCharacteristic;
-    }
-
     async function printViaBluetooth(order) {
       try {
-        if (!('bluetooth' in navigator)) {
-          alert('This browser does not support Web Bluetooth API (try Chrome/Edge on Android).');
-          return;
-        }
+        const device = await navigator.bluetooth.requestDevice({
+          filters: [{ namePrefix: 'POS' }], // Match Bluetooth thermal printer, update if needed
+          optionalServices: [0xFFE0]
+        });
+        const server = await device.gatt.connect();
+        const service = await server.getPrimaryService(0xFFE0);
+        const characteristic = await service.getCharacteristic(0xFFE1);
 
-        if (!printerCharacteristic) await connectBluetoothPrinter();
-
-        // Build ESC/POS receipt
+        // Create simple ESC/POS receipt
         let receipt =
-          '\x1B\x40' + // Initialize
-          '\x1B\x61\x01' + // Center align
           'YOUR RESTAURANT NAME\n' +
-          '------------------------------\n' +
-          '\x1B\x61\x00' + // Left align
+          '----------------------\n' +
           `Order Type: ${order.orderType}\nCustomer: ${order.customerName}\n`;
         if (order.tableNumber) receipt += `Table: ${order.tableNumber}\n`;
         if (order.address) receipt += `Address: ${order.address}\n`;
-        receipt += '------------------------------\n';
-        order.items.forEach(it => {
-          receipt += `${it.qty} x ${it.name} - ₹${it.price}\n`;
-        });
-        receipt += '------------------------------\n';
-        receipt += `Total: ₹${order.total}\nStatus: ${order.status}\n`;
-        receipt += `${new Date(order.createdAt).toLocaleString()}\n\n`;
-        receipt += 'Thank you! Visit Again!\n\n\n';
+        receipt += '----------------------\n';
+        receipt += order.items.map(it => `${it.qty} x ${it.name} ₹${it.price}`).join('\n');
+        receipt += '\n----------------------\n';
+        receipt += `Total: ₹${order.total}\n`;
+        receipt += `Status: ${order.status}\n`;
+        receipt += `Time: ${new Date(order.createdAt).toLocaleString()}\n`;
+        receipt += '\nThank you!\n\n\n';
 
-        const encoder = new TextEncoder();
-        const data = encoder.encode(receipt);
-        await printerCharacteristic.writeValue(data);
+        let encoder = new TextEncoder();
+        let data = encoder.encode(receipt);
+        await characteristic.writeValue(data);
+
         alert('Printed successfully!');
       } catch (e) {
         alert('Print failed: ' + (e.message || e));
       }
     }
 
+    // ... rest of your unchanged JS (updateStatus, deleteOrder, existing printOrder, dashboard, insights, etc.) ...
+    // Socket events etc as before
     datePicker.onchange = () => fetchOrders(datePicker.value);
     socket.on('newOrder', (o) => {
       if ((o.createdAt || '').slice(0,10) === datePicker.value) fetchOrders(datePicker.value);
     });
     socket.on('orderUpdated', (o) => { fetchOrders(datePicker.value); });
     fetchOrders(datePicker.value);
+
+    // ... analytics/chart code unchanged ...
   </script>
 </body>
 </html>
