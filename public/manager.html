@@ -34,7 +34,7 @@
       <a href="/index.html" class="px-4 py-2 bg-gray-800 rounded text-gray-200">Customer View</a>
     </header>
 
-    <!-- DASHBOARD CARDS SECTION -->
+    <!-- DASHBOARD -->
     <section id="dashboard" class="bg-white rounded-xl p-6 mb-8 shadow-xl border border-gray-300">
       <div class="flex flex-wrap gap-4 mb-4 items-center">
         <h2 class="text-2xl font-extrabold text-gray-800">📊 Dashboard</h2>
@@ -69,7 +69,7 @@
       </div>
     </section>
 
-    <!-- INSIGHT -->
+    <!-- INSIGHTS -->
     <section class="bg-white border-4 border-yellow-500 shadow-lg rounded-xl py-10 px-8 my-10">
       <h3 class="text-2xl font-extrabold text-yellow-800 mb-7 tracking-wider">📊 Detailed Insights & Comparison</h3>
       <form class="flex flex-wrap gap-7 items-center mb-4">
@@ -100,7 +100,7 @@
       <div id="insightResult" class="insight-box"></div>
     </section>
 
-    <!-- ORDERS SUMMARY -->
+    <!-- ORDERS -->
     <div class="bg-gray-800 rounded-2xl p-4 mb-6 flex justify-between items-center">
       <div>
         <label class="text-sm text-gray-400 mr-2">Select Date:</label>
@@ -117,7 +117,6 @@
       </div>
     </div>
 
-    <!-- ORDERS LISTS -->
     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
       <section>
         <h2 class="text-xl font-semibold text-amber-200 mb-4">Upcoming / Incoming Orders</h2>
@@ -132,25 +131,16 @@
 
   <script>
     const socket = io();
-
-    // ---- ORDER TABLES & SUMMARY ----
     const datePicker = document.getElementById('datePicker');
     datePicker.value = new Date().toISOString().slice(0,10);
-
-    // Hold last fetched orders in a map for safe Bluetooth print (no JSON-in-HTML issues)
-    let ORDER_MAP = new Map();
 
     async function fetchOrders(date) {
       const res = await fetch('/api/orders?date=' + date);
       const orders = await res.json();
-      // refresh the map
-      ORDER_MAP.clear();
-      orders.forEach(o => ORDER_MAP.set(String(o._id), o));
       render(orders);
     }
 
     function render(orders) {
-      // summary stats
       const dinein = orders.filter(o => o.orderType === 'dinein');
       const takeaway = orders.filter(o => o.orderType === 'takeaway');
       const delivery = orders.filter(o => o.orderType === 'delivery');
@@ -160,12 +150,11 @@
       document.getElementById('countTakeaway').innerText = takeaway.length;
       document.getElementById('countDelivery').innerText = delivery.length;
 
-      // organize orders into incoming/delivered
       const incoming = orders.filter(o => o.status !== 'delivered' && o.status !== 'deleted');
       const delivered = orders.filter(o => o.status === 'delivered');
 
       document.getElementById('incoming').innerHTML = incoming.map(o => `
-        <div class="bg-gray-900 rounded-lg border border-amber-400 p-4 shadow" data-id="${o._id}">
+        <div class="bg-gray-900 rounded-lg border border-amber-400 p-4 shadow">
           <div class="flex justify-between items-start">
             <div>
               <span class="order-type-badge order-type-${o.orderType}">${o.orderType.charAt(0).toUpperCase() + o.orderType.slice(1)}</span>
@@ -186,13 +175,13 @@
             <button class="card-btn px-3 py-1 bg-green-600 rounded" onclick="updateStatus('${o._id}','delivered')">Delivered</button>
             <button class="card-btn px-3 py-1 bg-red-600 rounded" onclick="deleteOrder('${o._id}')">Delete</button>
             <button class="card-btn px-3 py-1 bg-amber-400 text-black rounded font-bold" onclick="printOrder('${o._id}')">Print</button>
-            <button class="card-btn px-3 py-1 bg-teal-400 text-black rounded font-bold" onclick="printViaBluetoothFromId('${o._id}')">Bluetooth Print</button>
+            <button class="card-btn px-3 py-1 bg-teal-400 text-black rounded font-bold" onclick='printViaBluetooth(${JSON.stringify(o)})'>Bluetooth Print</button>
           </div>
         </div>
       `).join('');
 
       document.getElementById('delivered').innerHTML = delivered.map(o => `
-        <div class="bg-gray-800 rounded-lg border border-gray-700 p-4 shadow" data-id="${o._id}">
+        <div class="bg-gray-800 rounded-lg border border-gray-700 p-4 shadow">
           <div class="flex justify-between items-start">
             <div>
               <span class="order-type-badge order-type-${o.orderType}">${o.orderType.charAt(0).toUpperCase() + o.orderType.slice(1)}</span>
@@ -210,7 +199,7 @@
           </ul>
           <div class="mt-3 flex gap-2">
             <button class="card-btn px-3 py-1 bg-amber-400 text-black rounded font-bold" onclick="printOrder('${o._id}')">Print</button>
-            <button class="card-btn px-3 py-1 bg-teal-400 text-black rounded font-bold" onclick="printViaBluetoothFromId('${o._id}')">Bluetooth Print</button>
+            <button class="card-btn px-3 py-1 bg-teal-400 text-black rounded font-bold" onclick='printViaBluetooth(${JSON.stringify(o)})'>Bluetooth Print</button>
           </div>
         </div>
       `).join('');
@@ -239,10 +228,33 @@
       });
     }
 
-    // -------- Normal Browser Print (unchanged) --------
+    // ✅ RawBT printing for HOIN printer
+    async function printViaBluetooth(order) {
+      try {
+        let receipt =
+          'YOUR RESTAURANT NAME\n' +
+          '----------------------\n' +
+          `Order Type: ${order.orderType}\nCustomer: ${order.customerName}\n`;
+
+        if (order.tableNumber) receipt += `Table: ${order.tableNumber}\n`;
+        if (order.address) receipt += `Address: ${order.address}\n`;
+        receipt += '----------------------\n';
+        receipt += order.items.map(it => `${it.qty} x ${it.name} ₹${it.price}`).join('\n');
+        receipt += '\n----------------------\n';
+        receipt += `Total: ₹${order.total}\nStatus: ${order.status}\n`;
+        receipt += `Time: ${new Date(order.createdAt).toLocaleString()}\n`;
+        receipt += '\nThank you! Visit Again\n\n\n';
+
+        window.location.href = `intent://print?text=${encodeURIComponent(receipt)}#Intent;scheme=rawbt;end`;
+      } catch (e) {
+        alert('Bluetooth print failed: ' + (e.message || e));
+      }
+    }
+
+    // Browser print
     window.printOrder = function(orderId) {
       let btn = document.querySelector(`[onclick="printOrder('${orderId}')"]`);
-      let box = btn ? btn.closest('.bg-gray-900, .bg-gray-800') : document.querySelector(`[data-id="${orderId}"]`);
+      let box = btn ? btn.closest('.bg-gray-900, .bg-gray-800') : null;
       if (!box) return;
       const orderType = box.querySelector('.order-type-badge')?.textContent || '';
       const customerName = box.querySelector('.font-bold.text-lg')?.textContent || '';
@@ -252,11 +264,7 @@
       let itemRows = items.map(txt => {
         let m = txt.match(/(\d+)\s*[×x]\s*(.+?)\s*—\s*₹(\d+)/i);
         if (m) {
-          return `<tr>
-            <td>${m[2]}</td>
-            <td style="text-align:center;">${m[1]}</td>
-            <td style="text-align:right;">₹${m[3]}</td>
-          </tr>`;
+          return `<tr><td>${m[2]}</td><td style="text-align:center;">${m[1]}</td><td style="text-align:right;">₹${m[3]}</td></tr>`;
         }
         return '';
       }).join('');
@@ -271,14 +279,8 @@
         <hr>
         <strong>Order Details:</strong>
         <table class="bill-table">
-          <thead>
-            <tr>
-              <th>Item</th><th>Qty</th><th>Price</th>
-            </tr>
-          </thead>
-          <tbody>
-            ${itemRows}
-          </tbody>
+          <thead><tr><th>Item</th><th>Qty</th><th>Price</th></tr></thead>
+          <tbody>${itemRows}</tbody>
         </table>
         <div class="bill-total">Total: ₹${total}</div>
       `);
@@ -287,141 +289,15 @@
       win.onload = function() { win.focus(); win.print(); setTimeout(()=>win.close(), 700);}
     }
 
-    // ================== BLUETOOTH PRINT (manual connect) ==================
-    // Targets HOIN device that shows as "BlueTooth Printer"
-    let printerCharacteristic = null;
-    let connectedDevice = null;
-
-    async function connectBluetoothPrinter() {
-      if (!('bluetooth' in navigator)) {
-        alert('⚠️ Web Bluetooth not supported. Use Chrome/Edge on Android.');
-        throw new Error('WebBluetoothUnsupported');
-      }
-
-      // Exact-name filter to match your HOIN printer label
-      const device = await navigator.bluetooth.requestDevice({
-        filters: [{ name: 'BlueTooth Printer' }],
-        optionalServices: [0xFFE0, 0xFFE1] // common HM-10 style UART service/char
-      });
-
-      const server = await device.gatt.connect();
-      connectedDevice = device;
-
-      // Try known service/characteristic first
-      let service = null;
-      try { service = await server.getPrimaryService(0xFFE0); }
-      catch(e) {
-        // fallback: scan all services and pick the first writable char
-        const services = await server.getPrimaryServices();
-        for (const s of services) {
-          const chs = await s.getCharacteristics();
-          const writable = chs.find(c => c.properties.write || c.properties.writeWithoutResponse);
-          if (writable) { printerCharacteristic = writable; break; }
-        }
-        if (printerCharacteristic) {
-          alert('✅ Bluetooth Printer connected!');
-          return printerCharacteristic;
-        }
-        throw new Error('No writable characteristic found');
-      }
-
-      // Get characteristic (0xFFE1) under 0xFFE0 service
-      try {
-        printerCharacteristic = await service.getCharacteristic(0xFFE1);
-      } catch(e) {
-        // fallback: first writable in this service
-        const chs = await service.getCharacteristics();
-        const writable = chs.find(c => c.properties.write || c.properties.writeWithoutResponse);
-        if (!writable) throw new Error('No writable characteristic in FFE0');
-        printerCharacteristic = writable;
-      }
-
-      alert('✅ Bluetooth Printer connected!');
-      return printerCharacteristic;
-    }
-
-    function buildReceipt58(order) {
-      // 2-inch / 58mm printers are ~24 characters wide (monospace)
-      const ESC = '\x1B', GS = '\x1D';
-      const reset = ESC + '@';
-      const center = ESC + 'a' + '\x01';
-      const left = ESC + 'a' + '\x00';
-      const boldOn = ESC + 'E' + '\x01';
-      const boldOff = ESC + 'E' + '\x00';
-      const cut = GS + 'V' + '\x00';
-      const newline = '\n';
-      const line = '------------------------' + newline; // 24 chars
-
-      function padLine(l) {
-        // ensure no longer than 24 chars
-        return (l || '').toString().slice(0,24);
-      }
-      function itemRow(name, qty, price) {
-        // Format: name (max 12)  qty xprice right-aligned
-        const nm = (name || '').toString().slice(0,12).padEnd(12, ' ');
-        const q = String(qty).padStart(2, ' ');
-        const p = String(price).padStart(5, ' '); // assumes small numbers per line
-        return `${nm}${q} x${p}${newline}`;
-      }
-
-      const itemsList = (order.items || [])
-        .map(it => itemRow(it.name, it.qty, it.price))
-        .join('');
-
-      const lines = [
-        reset, center, boldOn, padLine('YOUR RESTAURANT NAME'), newline, boldOff,
-        left, padLine(`Type: ${order.orderType||'-'}`), newline,
-        padLine(`Name: ${order.customerName||'-'}`), newline,
-        order.tableNumber ? (padLine(`Table: ${order.tableNumber}`) + newline) : '',
-        order.address ? (padLine(`Addr: ${order.address}`) + newline) : '',
-        line,
-        itemsList,
-        line,
-        boldOn, padLine(`TOTAL: ₹${order.total}`), newline, boldOff,
-        padLine(`Status: ${order.status||'-'}`), newline,
-        padLine(new Date(order.createdAt).toLocaleString()), newline,
-        center, padLine('Thank you! Visit Again'), newline, newline, newline,
-        cut
-      ];
-
-      return lines.join('');
-    }
-
-    async function printViaBluetooth(order) {
-      if (!printerCharacteristic) {
-        await connectBluetoothPrinter(); // manual connect prompt
-      }
-      const encoder = new TextEncoder();
-      const payload = encoder.encode(buildReceipt58(order));
-      // Some printers expect chunks <= 180-200 bytes; send in slices to be safe
-      const CHUNK = 180;
-      for (let i = 0; i < payload.byteLength; i += CHUNK) {
-        const slice = payload.slice(i, i + CHUNK);
-        await printerCharacteristic.writeValue(slice);
-      }
-      alert('🖨️ Printed via Bluetooth!');
-    }
-
-    // Safer button handler that reads from ORDER_MAP
-    window.printViaBluetoothFromId = async function(orderId) {
-      try {
-        const order = ORDER_MAP.get(String(orderId));
-        if (!order) { alert('Order not found in view. Refresh and try again.'); return; }
-        await printViaBluetooth(order);
-      } catch(e) {
-        alert('❌ Bluetooth print failed: ' + (e.message || e));
-      }
-    }
-
-    // --- Live updates (unchanged) ---
+    // Live updates
     datePicker.onchange = () => fetchOrders(datePicker.value);
-    socket.on('newOrder', (o) => {
+    socket.on('newOrder', o => {
       if ((o.createdAt || '').slice(0,10) === datePicker.value) fetchOrders(datePicker.value);
     });
-    socket.on('orderUpdated', (o) => { fetchOrders(datePicker.value); });
+    socket.on('orderUpdated', o => fetchOrders(datePicker.value));
     fetchOrders(datePicker.value);
 
-    // ------- DASHBOARD + INSIGHTS SCRIPTS (unchanged) -------
+    // Dashboard & insights
     const dashboardPeriod = document.getElementById('dashboardPeriod');
     const dashboardDate = document.getElementById('dashboardDate');
     dashboardDate.value = new Date().toISOString().slice(0,10);
@@ -438,7 +314,6 @@
     dashboardPeriod.onchange = dashboardDate.onchange = renderDashboard;
     window.addEventListener('DOMContentLoaded', renderDashboard);
 
-    // ------- INSIGHTS & CHARTS (unchanged) -------
     const compareBy = document.getElementById('compareBy');
     const compareByLabel = document.getElementById('compareByLabel');
     const insightType = document.getElementById('insightType');
@@ -496,6 +371,7 @@
       }
       document.getElementById('insightResult').innerHTML = html;
     }
+
     function renderChart(labels, data, chartLabel, chartType = 'bar') {
       const ctx = document.getElementById('myChart').getContext('2d');
       if (myCustomChart) myCustomChart.destroy();
