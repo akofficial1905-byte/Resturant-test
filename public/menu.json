@@ -18,15 +18,16 @@
   ],
 
   "Main Course Non Veg": [
-    { "name": "Chicken Curry", "variants": { "4 pcs": 100, "8 pcs": 180, "16 pcs": 680 } },
-    { "name": "Chicken Masala", "variants": { "4 pcs": 220, "8 pcs": 400, "16 pcs": 780 } },
-    { "name": "Butter Chicken", "variants": { "4 pcs": 220, "8 pcs": 430, "16 pcs": 820 } },
-    { "name": "Kadhai Chicken", "variants": { "4 pcs": 220, "8 pcs": 400, "16 pcs": 780 } },
-    { "name": "Chicken Do Pyaza", "variants": { "4 pcs": 220, "8 pcs": 400, "16 pcs": 780 } },
-    { "name": "Chicken Tikka Masala", "variants": { "4 pcs": 230, "8 pcs": 450, "16 pcs": 880 } },
-    { "name": "Egg Curry", "variants": { "4 pcs": 180, "8 pcs": 350, "16 pcs": 700 } },
-    { "name": "Chilli Chicken Gravy", "variants": { "4 pcs": 220, "8 pcs": 400, "16 pcs": 780 } },
-    { "name": "Garlic Chicken", "variants": { "4 pcs": 220, "8 pcs": 400, "16 pcs": 780 } }
+    { "name": "Chicken Curry", "variants": { "4 pcs": 100, "8 pcs": 180, "16 pcs": 350 } },
+    { "name": "Chicken Masala", "variants": { "4 pcs": 120, "8 pcs": 220, "16 pcs": 400 } },
+    { "name": "Butter Chicken", "variants": { "4 pcs": 130, "8 pcs": 220, "16 pcs": 430 } },
+    { "name": "Kadhai Chicken", "variants": { "4 pcs": 120, "8 pcs": 220, "16 pcs": 400 } },
+    { "name": "Chicken Do Pyaza", "variants": { "4 pcs": 120, "8 pcs": 220, "16 pcs": 400 } },
+    { "name": "Chicken Tikka Masala", "variants": { "4 pcs": 150, "8 pcs": 230, "16 pcs": 450 } },
+    { "name": "Egg Curry", "variants": { "2 pcs": 60, "4 pcs": 120 } },
+    { "name": "Chilli Chicken Gravy", "variants": { "4 pcs": 120, "8 pcs": 220, "16 pcs": 400 } },
+    { "name": "Garlic Chicken", "variants": { "4 pcs": 150, "8 pcs": 220, "16 pcs": 400 } },
+    { "name": "Butter Chicken Masala", "variants": { "4 pcs": 130, "8 pcs": 220, "16 pcs": 430 } }
   ],
 
   "Thali": [
