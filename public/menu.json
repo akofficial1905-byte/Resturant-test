@@ -2,18 +2,17 @@
   "Main Course Veg": [
     { "name": "Paneer Tikka Masala", "variants": { "Half (6pc)": 130, "Full (12pc)": 260 } },
     { "name": "Paneer Do Pyaza", "variants": { "Half (6pc)": 120, "Full (12pc)": 240 } },
-    { "name": "Shahi Paneer", "variants": { "Half (6pc)": 120, "Full (12pc)": 240 } },
-    { "name": "Kadhai Paneer", "variants": { "Half (6pc)": 120, "Full (12pc)": 240 } },
+    { "name": "Shahi Paneer", "variants": { "Half (6pc)": 120, "Full (12pc)": 210 } },
+    { "name": "Kadhai Paneer", "variants": { "Half (6pc)": 120, "Full (12pc)": 210 } },
     { "name": "Paneer Butter Masala", "variants": { "Half (6pc)": 120, "Full (12pc)": 240 } },
     { "name": "Dal Makhni", "variants": { "Half": 100, "Full": 200 } },
     { "name": "Dal Fry", "variants": { "Half": 70, "Full": 140 } },
     { "name": "Mushroom Masala", "variants": { "Half": 120, "Full": 240 } },
     { "name": "Mushroom Do Pyaza", "variants": { "Half": 120, "Full": 240 } },
-    { "name": "Paneer Bhurji", "variants": { "Half": 120, "Full": 240 } },
-    { "name": "Egg Bhurji", "variants": { "Half": 100, "Full": 200 } },
-    { "name": "Shahi Paneer Gravy", "variants": { "Half (6pc)": 120, "Full (12pc)": 240 } },
+    { "name": "Paneer Bhurji", "variants": { "Half": 140, "Full": 240 } },
+    { "name": "Egg Bhurji", "variants": { "Half": 50, "Full": 100 } },
     { "name": "Mix Veg", "variants": { "Half": 120, "Full": 200 } },
-    { "name": "Kadhai Mushroom", "variants": { "Half": 140, "Full": 240 } },
+    { "name": "Kadhai Mushroom", "variants": { "Half": 120, "Full": 240 } },
     { "name": "Chilli Mushroom", "variants": { "Half": 140, "Full": 240 } }
   ],
 
@@ -42,8 +41,8 @@
     { "name": "Tandoori Butter Roti", "variants": { "Piece": 10 } },
     { "name": "Tandoori Roti", "variants": { "Piece": 10 } },
     { "name": "Laccha Paratha", "variants": { "Piece": 30 } },
-    { "name": "Plain Naan", "variants": { "Piece": 30 } },
-    { "name": "Butter Naan", "variants": { "Piece": 35 } },
+    { "name": "Plain Naan", "variants": { "Piece": 25 } },
+    { "name": "Butter Naan", "variants": { "Piece": 30 } },
     { "name": "Garlic Naan", "variants": { "Piece": 35 } },
     { "name": "Paneer Naan", "variants": { "Piece": 70 } },
     { "name": "Chicken Naan", "variants": { "Piece": 80 } }
@@ -97,7 +96,8 @@
     { "name": "Paneer Fried Rice", "variants": {  "Full": 100 } },
     { "name": "Egg Fried Rice", "variants": { "Full": 80 } },
     { "name": "Chicken Fried Rice", "variants": { "Plate":100 } },
-    { "name": "Veg Rice Combo", "variants": { "Plate": 80 } }
+    { "name": "Veg Rice Combo", "variants": { "Plate": 80 } },
+    { "name": "Chicken Rice Combo", "variants": { "Plate": 100 } }
   ],
 "Biryani": [
   { "name": "Chicken Dum Biryani", "variants": { "Half": 80, "Full": 140 } }
