@@ -44,8 +44,8 @@
     { "name": "Laccha Paratha", "variants": { "Piece": 30 } },
     { "name": "Plain Naan", "variants": { "Piece": 30 } },
     { "name": "Butter Naan", "variants": { "Piece": 35 } },
-    { "name": "Garlic Naan", "variants": { "Piece": 30 } },
-    { "name": "Paneer Naan", "variants": { "Piece": 80 } },
+    { "name": "Garlic Naan", "variants": { "Piece": 35 } },
+    { "name": "Paneer Naan", "variants": { "Piece": 70 } },
     { "name": "Chicken Naan", "variants": { "Piece": 80 } }
   ],
 
@@ -63,16 +63,16 @@
 
   "Fry Snacks": [
     { "name": "Crispy Chicken", "variants": { "10 pcs": 200 } },
-    { "name": "Fish Fry", "variants": { "10 pcs": 180 } },
-    { "name": "Chicken Popcorn", "variants": { "10 pcs": 100, "20 pcs": 180 } },
-    { "name": "Chicken Nuggets", "variants": { "10 pcs": 100, "20 pcs": 180 } },
-    { "name": "Veg Popcorn", "variants": { "10 pcs": 80, "20 pcs": 150 } }
+    { "name": "Fish Fry", "variants": { "8 pcs": 200 } },
+    { "name": "Chicken Popcorn", "variants": { "15 pcs": 100 } },
+    { "name": "Chicken Nuggets", "variants": { "6 pcs": 100 } },
+    { "name": "Veg Popcorn", "variants": {  "20 pcs": 100 } }
   ],
 
   "Egg Items": [
     { "name": "Boiled Egg (1pc)", "variants": { "Piece": 10 } },
     { "name": "Bread Omelette", "variants": { "Plate": 50 } },
-    { "name": "Egg Roll", "variants": { "Piece": 60 } },
+    { "name": "Egg Roll", "variants": { "Piece": 50 } },
     { "name": "Chicken Roll", "variants": { "Piece": 80 } }
   ],
 
@@ -89,13 +89,13 @@
 
   "Rice": [
     { "name": "Plain Rice", "variants": { "Plate": 60 } },
-    { "name": "Jeera Rice", "variants": { "Plate": 80 } },
-    { "name": "Veg Pulao", "variants": { "Plate": 100 } },
-    { "name": "Mutter Pulao", "variants": { "Plate": 100 } },
-    { "name": "Paneer Pulao", "variants": { "Plate": 120 } },
-    { "name": "Veg Fried Rice", "variants": { "Half": 80, "Full": 120 } },
-    { "name": "Paneer Fried Rice", "variants": { "Half": 100, "Full": 160 } },
-    { "name": "Egg Fried Rice", "variants": { "Half": 100, "Full": 160 } },
+    { "name": "Jeera Rice", "variants": { "Plate": 70 } },
+    { "name": "Veg Pulao", "variants": { "Plate": 80 } },
+    { "name": "Mutter Pulao", "variants": { "Plate": 80 } },
+    { "name": "Paneer Pulao", "variants": { "Plate": 100 } },
+    { "name": "Veg Fried Rice", "variants": { "Full": 70 } },
+    { "name": "Paneer Fried Rice", "variants": {  "Full": 100 } },
+    { "name": "Egg Fried Rice", "variants": { "Full": 80 } },
     { "name": "Chicken Fried Rice", "variants": { "Plate":100 } },
     { "name": "Veg Rice Combo", "variants": { "Plate": 80 } }
   ],
@@ -114,7 +114,7 @@
     { "name": "Veg Noodles", "variants": { "Plate": 70 } },
     { "name": "Paneer Noodles", "variants": { "Plate": 100 } },
     { "name": "Chicken Noodles", "variants": { "Plate": 100 } },
-    { "name": "Veg Manchurian", "variants": { "6 pcs": 100, "12 pcs":100 } },
+    { "name": "Veg Manchurian", "variants": { "6 pcs": 60, "12 pcs":100 } },
     { "name": "French Fry", "variants": { "Plate": 100 } },
     { "name": "Honey Chilli Potato", "variants": { "Plate": 120 } },
     { "name": "Paneer Veg Burger", "variants": { "Plate": 60 } },
