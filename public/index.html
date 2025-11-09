@@ -120,7 +120,6 @@
       renderMenu();
     }
 
-    // Category buttons for fast scroll
     function renderCatBtns() {
       const catBtns = document.getElementById('catBtns');
       catBtns.innerHTML = '';
@@ -133,7 +132,6 @@
       });
     }
 
-    // Render menu with search filter
     function renderMenu() {
       const container = document.getElementById('menuSections');
       container.innerHTML = '';
@@ -185,11 +183,21 @@
 
     function addToCart(item) {
       const existing = cart.find(c => c.name === item.name && c.price === item.price);
-      if (existing) existing.qty++;
-      else cart.push(item);
+      if (existing) {
+        existing.qty++;
+      } else {
+        cart.push(item);
+      }
       renderCart();
       updateCartCount();
       showToast('Added to cart!');
+    }
+
+    function showToast(msg) {
+      const toast = document.getElementById('added-toast');
+      toast.textContent = msg;
+      toast.style.display = 'block';
+      setTimeout(() => { toast.style.display = 'none'; }, 1400);
     }
 
     function renderCart() {
@@ -228,13 +236,6 @@
 
     function updateCartCount() {
       document.getElementById('mobile-cart-summary').innerText = `🛒 ${cart.reduce((s,c)=>s+c.qty,0)} items | ₹${cart.reduce((s,c)=>s+c.price*c.qty,0)}`;
-    }
-
-    function showToast(msg) {
-      const toast = document.getElementById('added-toast');
-      toast.textContent = msg;
-      toast.style.display = 'block';
-      setTimeout(() => { toast.style.display = 'none'; }, 1400);
     }
 
     function toggleMobileCart(show) {
