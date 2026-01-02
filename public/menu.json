@@ -30,7 +30,7 @@
     { "name": "Chicken Noodles", "variants": { "Plate": 110 } },
     { "name": "Egg Roll", "variants": { "Piece": 60 } },
     { "name": "Chicken Roll", "variants": { "Piece": 90 } },
-    { "name": "Veg Manchurian", "variants": { "Plate": 110 } },
+    { "name": "Veg Manchurian", "variants": { "6 Pc": 70, "12 pc": 110 } },
     { "name": "French Fry", "variants": { "Plate": 100 } },
     { "name": "Honey Chilli Potato", "variants": { "Plate": 130 } },
     { "name": "Paneer Veg Burger", "variants": { "Piece": 60 } },
@@ -117,13 +117,14 @@
     { "name": "Chicken Dum Biryani", "variants": { "Half": 90, "Full": 150 } }
   ],
 
-  "Thali": [
-    { "name": "Veg Thali", "variants": { "Plate": 90 } },
-    { "name": "Special Thali", "variants": { "Plate": 110 } },
-    { "name": "Egg Thali", "variants": { "Plate": 100 } },
-    { "name": "Chicken Thali", "variants": { "Plate": 130 } },
-    { "name": "Mutton Thali", "variants": { "Plate": 250 } }
+ "Thali": [
+    { "name": "Veg Thali", "variants": { "Plate": 90 }, "details": "Sabzi + Dal + Rice + 2 Tandoori Roti" },
+    { "name": "Special Thali", "variants": { "Plate": 110 }, "details": "Dal + Paneer + Mix Veg + 3 Tandoori Roti + Rice + Salad + Sweet" },
+    { "name": "Egg Thali", "variants": { "Plate": 100 }, "details": "2 Pc Egg Curry + Dal + 2 Tandoori Roti + Rice + Salad" },
+    { "name": "Chicken Thali", "variants": { "Plate": 130 }, "details": "3 Pc Chicken Curry + Dal + 3 Tandoori Roti + Rice + Salad + Sweet" }
+    { "name": "Mutton Thali", "variants": { "Plate": 250 }, "details": "3 Pc Mutton Curry + Dal + 3 Tandoori Roti + Rice + Salad + Sweet" }
   ],
+
 
   "Mutton": [
     { "name": "Mutton Curry", "variants": { "4 Pc": 200, "8 Pc": 400 } }
