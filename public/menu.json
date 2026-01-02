@@ -1,12 +1,12 @@
 {
   "Soup": [
-    { "name": "Tomato Soup", "price": 80 },
-    { "name": "Chicken Soup", "price": 90 }
+    { "name": "Tomato Soup", "variants": { "Bowl": 80 } },
+    { "name": "Chicken Soup", "variants": { "Bowl": 90 } }
   ],
 
   "Egg Items": [
-    { "name": "Boiled Egg (1 Pc)", "price": 10 },
-    { "name": "Bread Omelette", "price": 60 }
+    { "name": "Boiled Egg (1 Pc)", "variants": { "Piece": 10 } },
+    { "name": "Bread Omelette", "variants": { "Plate": 60 } }
   ],
 
   "Fry Snacks": [
@@ -21,31 +21,32 @@
     { "name": "Gravy Chaap", "variants": { "6 Pc": 130, "12 Pc": 210 } },
     { "name": "Gravy Masala Chaap", "variants": { "6 Pc": 130, "12 Pc": 210 } },
     { "name": "Chaap Do Pyaza", "variants": { "6 Pc": 130, "12 Pc": 250 } },
-    { "name": "Gravy Chaap Butter Masala", "variants": { "6 Pc": 130, "12 Pc": 250 } },
-    { "name": "Tandoori Chaap", "variants": { "6 Pc": 130, "12 Pc": 210 } },
-    { "name": "Afghani Chaap", "variants": { "6 Pc": 140, "12 Pc": 210 } },
-    { "name": "Malai Chaap", "variants": { "6 Pc": 140, "12 Pc": 210 } },
-    { "name": "Tandoori Masala Chaap", "variants": { "6 Pc": 130, "12 Pc": 210 } }
+    { "name": "Gravy Chaap Butter Masala", "variants": { "6 Pc": 130, "12 Pc": 250 } }
   ],
 
   "Chinese Snacks": [
-    { "name": "Veg Noodles", "price": 80 },
-    { "name": "Paneer Noodles", "price": 110 },
-    { "name": "Chicken Noodles", "price": 110 },
-    { "name": "Egg Roll", "price": 60 },
-    { "name": "Chicken Roll", "price": 90 },
-    { "name": "Veg Manchurian", "price": 110 },
-    { "name": "French Fry", "price": 100 },
-    { "name": "Honey Chilli Potato", "price": 130 },
-    { "name": "Paneer Veg Burger", "price": 60 },
-    { "name": "Chicken Burger", "price": 100 }
+    { "name": "Veg Noodles", "variants": { "Plate": 80 } },
+    { "name": "Paneer Noodles", "variants": { "Plate": 110 } },
+    { "name": "Chicken Noodles", "variants": { "Plate": 110 } },
+    { "name": "Egg Roll", "variants": { "Piece": 60 } },
+    { "name": "Chicken Roll", "variants": { "Piece": 90 } },
+    { "name": "Veg Manchurian", "variants": { "Plate": 110 } },
+    { "name": "French Fry", "variants": { "Plate": 100 } },
+    { "name": "Honey Chilli Potato", "variants": { "Plate": 130 } },
+    { "name": "Paneer Veg Burger", "variants": { "Piece": 60 } },
+    { "name": "Chicken Burger", "variants": { "Piece": 100 } }
   ],
 
   "Tandoori Snack": [
     { "name": "Tandoori Chicken", "variants": { "6 Pc": 200, "12 Pc": 380 } },
     { "name": "Chicken Seekh Kabab", "variants": { "6 Pc": 210, "12 Pc": 390 } },
     { "name": "Paneer Tikka", "variants": { "6 Pc": 210, "12 Pc": 410 } },
-    { "name": "Chicken Tikka", "variants": { "6 Pc": 250, "12 Pc": 450 } }
+    { "name": "Chicken Tikka", "variants": { "6 Pc": 250, "12 Pc": 450 } },
+
+    { "name": "Tandoori Chaap", "variants": { "6 Pc": 130, "12 Pc": 210 } },
+    { "name": "Afghani Chaap", "variants": { "6 Pc": 140, "12 Pc": 210 } },
+    { "name": "Malai Chaap", "variants": { "6 Pc": 140, "12 Pc": 210 } },
+    { "name": "Tandoori Masala Chaap", "variants": { "6 Pc": 130, "12 Pc": 210 } }
   ],
 
   "Main Course Veg": [
@@ -81,35 +82,35 @@
   ],
 
   "Breads": [
-    { "name": "Tawa Roti", "price": 8 },
-    { "name": "Tawa Butter Roti", "price": 10 },
-    { "name": "Tandoori Roti", "price": 10 },
-    { "name": "Laccha Paratha", "price": 30 },
-    { "name": "Plain Naan", "price": 25 },
-    { "name": "Butter Naan", "price": 30 },
-    { "name": "Garlic Naan", "price": 35 },
-    { "name": "Paneer Naan", "price": 70 },
-    { "name": "Chicken Naan", "price": 80 }
+    { "name": "Tawa Roti", "variants": { "Piece": 8 } },
+    { "name": "Tawa Butter Roti", "variants": { "Piece": 10 } },
+    { "name": "Tandoori Roti", "variants": { "Piece": 10 } },
+    { "name": "Laccha Paratha", "variants": { "Piece": 30 } },
+    { "name": "Plain Naan", "variants": { "Piece": 25 } },
+    { "name": "Butter Naan", "variants": { "Piece": 30 } },
+    { "name": "Garlic Naan", "variants": { "Piece": 35 } },
+    { "name": "Paneer Naan", "variants": { "Piece": 70 } },
+    { "name": "Chicken Naan", "variants": { "Piece": 80 } }
   ],
 
   "Rice": [
     { "name": "Plain Rice", "variants": { "Half": 30, "Full": 60 } },
-    { "name": "Jeera Rice", "price": 80 },
-    { "name": "Veg Pulao", "price": 90 },
-    { "name": "Mutter Pulao", "price": 90 },
-    { "name": "Paneer Pulao", "price": 110 }
+    { "name": "Jeera Rice", "variants": { "Plate": 80 } },
+    { "name": "Veg Pulao", "variants": { "Plate": 90 } },
+    { "name": "Mutter Pulao", "variants": { "Plate": 90 } },
+    { "name": "Paneer Pulao", "variants": { "Plate": 110 } }
   ],
 
   "Rice Combo": [
-    { "name": "Veg Rice Combo", "price": 90 },
-    { "name": "Chicken Rice Combo", "price": 110 }
+    { "name": "Veg Rice Combo", "variants": { "Plate": 90 } },
+    { "name": "Chicken Rice Combo", "variants": { "Plate": 110 } }
   ],
 
   "Fried Rice": [
-    { "name": "Veg Fried Rice", "price": 80 },
-    { "name": "Egg Fried Rice", "price": 90 },
-    { "name": "Paneer Fried Rice", "price": 110 },
-    { "name": "Chicken Fried Rice", "price": 110 }
+    { "name": "Veg Fried Rice", "variants": { "Plate": 80 } },
+    { "name": "Egg Fried Rice", "variants": { "Plate": 90 } },
+    { "name": "Paneer Fried Rice", "variants": { "Plate": 110 } },
+    { "name": "Chicken Fried Rice", "variants": { "Plate": 110 } }
   ],
 
   "Biryani": [
@@ -117,11 +118,11 @@
   ],
 
   "Thali": [
-    { "name": "Veg Thali", "price": 90 },
-    { "name": "Special Thali", "price": 110 },
-    { "name": "Egg Thali", "price": 100 },
-    { "name": "Chicken Thali", "price": 130 },
-    { "name": "Mutton Thali", "price": 250 }
+    { "name": "Veg Thali", "variants": { "Plate": 90 } },
+    { "name": "Special Thali", "variants": { "Plate": 110 } },
+    { "name": "Egg Thali", "variants": { "Plate": 100 } },
+    { "name": "Chicken Thali", "variants": { "Plate": 130 } },
+    { "name": "Mutton Thali", "variants": { "Plate": 250 } }
   ],
 
   "Mutton": [
@@ -129,7 +130,7 @@
   ],
 
   "Beverages": [
-    { "name": "Cold Drink", "price": 20 },
-    { "name": "Water Bottle", "price": 20 }
+    { "name": "Cold Drink", "variants": { "Bottle": 20 } },
+    { "name": "Water Bottle", "variants": { "Piece": 20 } }
   ]
 }
