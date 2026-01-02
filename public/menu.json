@@ -30,7 +30,7 @@
     { "name": "Chicken Noodles", "variants": { "Plate": 110 } },
     { "name": "Egg Roll", "variants": { "Piece": 60 } },
     { "name": "Chicken Roll", "variants": { "Piece": 90 } },
-    { "name": "Veg Manchurian", "variants": { "Plate": 110 } },
+    { "name": "Veg Manchurian", "variants": { "6 Pc": 70, "12 pc": 110 } },
     { "name": "French Fry", "variants": { "Plate": 100 } },
     { "name": "Honey Chilli Potato", "variants": { "Plate": 130 } },
     { "name": "Paneer Veg Burger", "variants": { "Piece": 60 } },
