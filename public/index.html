@@ -1,398 +1,624 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <title>Titishya Fast Food — Order</title>
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <script src="https://cdn.tailwindcss.com"></script>
-  <style>
-    .font-semibold, .font-bold { color: #fff !important; text-shadow: 0 1px 5px #000a !important; }
-    select.variant-select { font-weight: bold; background: #ffd25a; color: #222; border-radius: 7px; border:none; box-shadow: 0 1px 4px #2224; padding: 4px 11px; font-size: 1em;}
-    option { color: #222; background: #fffbe4; font-size:1em; }
-    .text-xs { color: #ffd25a !important; }
-    .text-gray-300, .text-gray-400, .text-amber-200 { color: #ffd25a !important; }
-    input { color: #222 !important; background: #ffd25a !important; font-weight: bold !important; }
-    input::placeholder { color: #6d4f00 !important; opacity: 1 !important; font-weight: bold !important; }
-    @media (max-width:768px){
-      aside { display:none; }
-      #mobile-cart-bar { display:flex !important; }
-    }
-  </style>
+<meta charset="UTF-8">
+<title>Titishya Fast Food — Digital Menu</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+
+<style>
+:root{
+  --bg:#0b0b0b;
+  --paper:#1e1e1e;
+  --gold:#ffd25a;
+  --text:#f5f5f5;
+}
+*{box-sizing:border-box}
+body{
+  margin:0;
+  background:var(--bg);
+  color:var(--text);
+  font-family:Poppins,sans-serif;
+  overflow:hidden;
+}
+
+/* BOOK */
+#viewport{width:100vw;height:100vh;overflow:hidden}
+#book{display:flex;height:100%;transition:transform .55s cubic-bezier(.4,0,.2,1)}
+.page{
+  min-width:100vw;
+  height:100vh;
+  padding:18px 14px 130px;
+  background:
+    radial-gradient(circle at center, rgba(255,210,90,.06), transparent 60%),
+    linear-gradient(160deg,#111,#1f1f1f);
+  position:relative;
+}
+.page::before{
+  content:"TITISHYA FAST FOOD";
+  position:absolute;inset:0;
+  display:flex;justify-content:center;align-items:center;
+  font-family:"Playfair Display",serif;
+  font-size:3.2rem;
+  color:rgba(255,255,255,.04);
+  pointer-events:none;
+}
+
+/* HEADINGS */
+h1,h2{
+  font-family:"Playfair Display",serif;
+  color:var(--gold);
+  margin-bottom:10px;
+}
+h1{font-size:2.4rem}
+h2{font-size:1.4rem}
+
+.center{
+  height:100%;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  align-items:center;
+  text-align:center;
+}
+
+/* NAV ARROWS */
+.nav{
+  position:fixed;
+  top:50%;
+  transform:translateY(-50%);
+  font-size:26px;
+  color:var(--gold);
+  cursor:pointer;
+  z-index:20;
+  opacity:.75;
+}
+.nav:hover{opacity:1}
+#prev{left:6px}
+#next{right:6px}
+
+/* PAGE NO */
+.pageNo{
+  position:absolute;
+  bottom:14px;
+  right:16px;
+  font-size:.7rem;
+  color:#aaa;
+}
+
+/* CONTENTS */
+#contentsBtn{
+  position:fixed;
+  top:12px;
+  right:12px;
+  background:#2a2a2a;
+  color:var(--gold);
+  padding:8px 16px;
+  border-radius:20px;
+  font-size:.9rem;
+  z-index:30;
+}
+.contents-grid{
+  display:grid;
+  grid-template-columns:repeat(2,1fr);
+  gap:14px;
+  max-width:440px;
+}
+.contents-card{
+  background:#2a2a2a;
+  padding:16px;
+  border-radius:16px;
+  font-weight:600;
+  text-align:center;
+  cursor:pointer;
+}
+
+/* ITEMS */
+.items-grid{
+  display:grid;
+  grid-template-columns:repeat(2,1fr);
+  gap:10px;
+}
+@media(min-width:600px){
+  .items-grid{grid-template-columns:repeat(3,1fr)}
+}
+.item{
+  background:#2a2a2a;
+  border-radius:14px;
+  padding:10px;
+  font-size:.8rem;
+}
+.item b{display:block;font-size:.9rem;margin-bottom:4px}
+.price{font-size:.75rem;color:var(--gold);margin-bottom:6px}
+select{
+  width:100%;
+  padding:7px;
+  border-radius:8px;
+  border:none;
+  font-size:.75rem;
+  margin-bottom:6px;
+}
+.add{
+  width:100%;
+  padding:7px;
+  border-radius:18px;
+  border:none;
+  background:linear-gradient(90deg,#ffd25a,#ffe38a);
+  font-weight:600;
+  font-size:.78rem;
+}
+
+/* FOOTER CART BAR */
+#cartBar{
+  position:fixed;
+  bottom:0;left:0;right:0;
+  background:#111;
+  border-top:2px solid var(--gold);
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  padding:10px 14px;
+  z-index:40;
+}
+#cartSummary{font-weight:600}
+#checkoutBtn{
+  background:var(--gold);
+  color:#000;
+  padding:10px 18px;
+  border-radius:22px;
+  font-weight:700;
+  border:none;
+}
+
+/* CART MODAL */
+#cartModal{
+  position:fixed;inset:0;
+  background:rgba(0,0,0,.75);
+  display:none;
+  z-index:50;
+}
+#cartBox{
+  background:#1f1f1f;
+  width:92%;
+  max-width:460px;
+  max-height:88vh;
+  margin:30px auto;
+  padding:18px;
+  border-radius:18px;
+  display:flex;
+  flex-direction:column;
+}
+#cartItems{flex:1;overflow:auto;margin-bottom:10px}
+.cart-row{
+  display:flex;justify-content:space-between;align-items:center;
+  margin-bottom:8px;font-size:.85rem;
+}
+.cart-row small{color:#ccc}
+.qty button{
+  background:#333;color:#fff;border:none;
+  padding:4px 8px;border-radius:6px;margin:0 4px;
+}
+
+/* INPUTS */
+input,select#orderType{
+  width:100%;
+  padding:10px;
+  border-radius:10px;
+  border:none;
+  margin-bottom:8px;
+  font-size:.9rem;
+}
+.primary{
+  background:linear-gradient(90deg,#ffd25a,#ffe38a);
+  border:none;padding:12px;border-radius:26px;
+  font-weight:700;width:100%;
+}
+
+/* TOAST */
+#toast{
+  position:fixed;
+  bottom:90px;
+  left:50%;
+  transform:translateX(-50%);
+  background:#222;
+  color:var(--gold);
+  padding:10px 18px;
+  border-radius:20px;
+  font-size:.8rem;
+  display:none;
+  z-index:60;
+}
+
+/* SWIPE HINT */
+#hint{
+  position:fixed;
+  bottom:120px;
+  left:50%;
+  transform:translateX(-50%);
+  background:rgba(0,0,0,.7);
+  color:#fff;
+  padding:8px 14px;
+  border-radius:18px;
+  font-size:.75rem;
+  z-index:70;
+}
+
+/* POST-ORDER MODAL (PAYMENT CHOICE) */
+#postOrderModal{
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,.8);
+  display:none;
+  align-items:center;
+  justify-content:center;
+  z-index:80;
+}
+#postOrderBox{
+  background:#1f1f1f;
+  padding:18px;
+  border-radius:18px;
+  width:90%;
+  max-width:420px;
+  text-align:center;
+}
+#postOrderBox h3{
+  margin-top:0;
+  color:var(--gold);
+}
+.post-note{
+  font-size:.85rem;
+  color:#ddd;
+}
+.post-small{
+  font-size:.75rem;
+  color:#aaa;
+}
+#billLine{
+  font-size:.9rem;
+  margin:8px 0;
+}
+.post-btn{
+  margin-top:8px;
+}
+</style>
 </head>
-<body class="bg-gradient-to-br from-neutral-900 via-amber-900 to-neutral-800 min-h-screen text-gray-100">
-  <div class="max-w-7xl mx-auto p-6">
-    <header class="flex items-center justify-between mb-6">
-      <div>
-        <h1 class="text-4xl font-extrabold tracking-tight text-amber-300">Titishya Fast Food</h1>
-        <p class="text-sm text-amber-200/70">Contact: <b>+91-XXXXXXXXXX</b> • Near WOW Laundry — University Specials</p>
-      </div>
-    </header>
 
-    <main class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-      <!-- Menu Area -->
-      <div class="lg:col-span-2 space-y-6">
-        <section class="bg-gray-900/60 rounded-2xl p-6 shadow-lg mb-6">
-          <h2 class="text-xl font-semibold text-amber-300 mb-4">Order Type</h2>
-          <div class="flex gap-4 mb-2 flex-wrap">
-            <button class="orderTypeBtn px-4 py-2 rounded bg-amber-400 font-bold text-black" data-type="dinein">Dine-In</button>
-            <button class="orderTypeBtn px-4 py-2 rounded bg-green-400 font-bold text-black" data-type="takeaway">Takeaway</button>
-          </div>
-          <div id="orderTypeForm" class="mt-4"></div>
-        </section>
-        <!-- Search and Categories -->
-        <section class="mb-5 flex flex-wrap gap-3 bg-gray-900/40 p-3 rounded-lg">
-          <input id="searchBox" type="text" placeholder="Search menu..." class="flex-1 px-3 py-2 rounded bg-yellow-50 text-black font-bold border-none focus:ring w-full sm:w-auto" />
-          <div id="catBtns" class="flex flex-wrap gap-2 w-full sm:w-auto"></div>
-        </section>
-        <section id="menuSections" class="space-y-6"></section>
-      </div>
+<body>
 
-      <!-- Desktop Cart -->
-      <aside class="bg-gray-900/50 rounded-2xl p-5 shadow-lg h-fit sticky top-6">
-        <h3 class="text-lg font-semibold text-amber-300 mb-3">🛒 Cart</h3>
-        <div id="cartList" class="space-y-3 text-gray-200"></div>
-        <div class="mt-4 border-t border-gray-700 pt-3">
-          <div class="flex justify-between mt-3 border-t border-gray-700 pt-3">
-            <div class="text-lg font-bold text-amber-200">Total</div>
-            <div id="totalAmount" class="text-lg font-bold text-amber-200">₹0</div>
-          </div>
-          <button id="checkoutBtn" class="mt-4 w-full bg-gradient-to-r from-amber-400 to-yellow-300 text-black py-3 rounded-lg font-bold shadow hover:scale-105">Checkout & Pay</button>
-        </div>
-      </aside>
-    </main>
+<div id="viewport"><div id="book"></div></div>
+
+<div id="prev" class="nav">❮</div>
+<div id="next" class="nav">❯</div>
+<button id="contentsBtn" onclick="go(1)">📑 Menu</button>
+
+<div id="cartBar">
+  <div id="cartSummary">🛒 0 items | ₹0</div>
+  <button id="checkoutBtn">View Cart</button>
+</div>
+
+<div id="cartModal">
+  <div id="cartBox">
+    <h3>Your Order</h3>
+    <div id="cartItems"></div>
+    <b>Total: ₹<span id="total">0</span></b>
+
+    <select id="orderType">
+      <option value="">Select Order Type</option>
+      <option value="dinein">Dine In</option>
+      <option value="takeaway">Takeaway</option>
+    </select>
+
+    <input id="name" placeholder="Customer Name">
+    <input id="mobile" placeholder="Mobile Number">
+    <input id="table" placeholder="Table Number" style="display:none">
+    <input id="address" placeholder="Address" style="display:none">
+
+    <button class="primary" id="placeOrderBtn">Place Order</button>
+    <button onclick="closeCart()">Close</button>
   </div>
+</div>
 
-  <!-- Floating Mobile Cart Bar -->
-  <div id="mobile-cart-bar" class="fixed bottom-0 left-0 right-0 bg-amber-400 text-black font-bold p-4 hidden justify-between items-center shadow-lg z-50">
-    <span id="mobile-cart-summary">🛒 0 items | ₹0</span>
-    <button onclick="toggleMobileCart(true)" class="bg-black text-amber-300 px-4 py-2 rounded-lg">View Cart</button>
-  </div>
+<div id="toast"></div>
+<div id="hint">Swipe or use arrows to browse menu</div>
 
-  <!-- Mobile Cart Drawer -->
-  <div id="mobile-cart-drawer" class="fixed bottom-0 left-0 right-0 bg-gray-900 text-amber-200 rounded-t-3xl shadow-2xl hidden z-50 transition-transform duration-300" style="max-height:80%;overflow-y:auto;">
-    <div class="flex justify-between items-center p-4 border-b border-amber-400">
-      <h3 class="text-lg font-bold">🛒 Your Cart</h3>
-      <button onclick="toggleMobileCart(false)" class="text-red-400 font-bold text-lg">❌</button>
-    </div>
-    <div id="mobileCartList" class="p-4 space-y-3"></div>
-    <div class="p-4 border-t border-amber-400">
-      <div class="flex justify-between text-lg font-bold mb-4">
-        <span>Total:</span>
-        <span id="mobileTotalAmount">₹0</span>
-      </div>
-      <button id="mobileCheckoutBtn" class="w-full bg-amber-400 text-black py-3 rounded-lg font-bold shadow hover:scale-105">Checkout & Pay</button>
-    </div>
-  </div>
+<!-- POST-ORDER PAYMENT MODAL -->
+<div id="postOrderModal">
+  <div id="postOrderBox">
+    <h3>Order placed successfully</h3>
+    <p class="post-note">
+      Please complete payment at the counter to receive your order.
+    </p>
+    <p id="billLine"></p>
 
-  <!-- Toast -->
-  <div id="added-toast"
-       style="display:none;position:fixed;bottom:80px;left:50%;transform:translateX(-50%);
-       background:#222;color:#ffd25a;padding:14px 28px;border-radius:22px;z-index:1001;font-size:1.15em;box-shadow:0 2px 10px #111;">
-    Added to cart!
-  </div>
+    <div style="margin:10px 0;font-weight:600;">Select payment method</div>
+    <button id="payCashBtn" class="primary post-btn">Pay with Cash at Counter</button>
+    <button id="payQRBtn" class="primary post-btn">Pay via QR (UPI)</button>
 
-  <!-- POST-ORDER PAYMENT MODAL (like Mughlai) -->
-  <div id="postOrderModal"
-       style="position:fixed;inset:0;background:rgba(0,0,0,.8);display:none;align-items:center;justify-content:center;z-index:80;">
-    <div style="background:#111827;padding:18px;border-radius:18px;width:90%;max-width:420px;text-align:center;">
-      <h3 class="text-xl font-bold text-amber-300 mb-2">Order placed successfully</h3>
-      <p class="text-sm text-amber-100 mb-2">
-        Please complete payment at the counter to receive your order.
+    <div id="cashSection" style="display:none;margin-top:14px;">
+      <p class="post-note">
+        Please go to the counter and pay the above amount.<br><br>
+        Payment confirmation needs to be done at the counter to receive your order.
       </p>
-      <p id="billLine" class="text-base font-semibold text-amber-200 mb-3"></p>
+      <button id="cashDoneBtn" class="primary post-btn">Done</button>
+    </div>
 
-      <div class="text-sm font-bold text-amber-200 mb-2">Select payment method</div>
-      <button id="payCashBtn" class="w-full bg-amber-400 text-black py-2 rounded-lg font-bold mb-2">Pay with Cash at Counter</button>
-      <button id="payQRBtn" class="w-full bg-green-400 text-black py-2 rounded-lg font-bold mb-1">Pay via QR (UPI)</button>
-
-      <div id="cashSection" style="display:none;margin-top:12px;">
-        <p class="text-sm text-amber-100">
-          Please go to the counter and pay the above amount.<br>
-          Payment confirmation needs to be done at the counter to receive your order.
-        </p>
-        <button id="cashDoneBtn" class="w-full bg-amber-400 text-black py-2 rounded-lg font-bold mt-3">Done</button>
-      </div>
-
-      <div id="qrSection" style="display:none;margin-top:12px;">
-        <p class="text-sm text-amber-100 mb-2">
-          Scan this QR to pay the exact bill amount via UPI.
-        </p>
-        <div id="qrBox" style="background:#000;padding:10px;border-radius:12px;display:inline-block;"></div>
-        <p class="text-xs text-amber-200 mt-2">
-          After payment, please confirm at the counter to receive your order.
-        </p>
-        <button id="qrDoneBtn" class="w-full bg-amber-400 text-black py-2 rounded-lg font-bold mt-3">Done</button>
-      </div>
+    <div id="qrSection" style="display:none;margin-top:14px;">
+      <p class="post-note">
+        Scan this QR to pay the exact bill amount via UPI.
+      </p>
+      <div id="qrBox" style="background:#000;padding:10px;border-radius:12px;display:inline-block;"></div>
+      <p class="post-small">
+        After payment, please confirm at the counter to receive your order.
+      </p>
+      <button id="qrDoneBtn" class="primary post-btn">Done</button>
     </div>
   </div>
+</div>
 
-  <script>
-    let menu = {}, cart = [];
-    let orderType = null;
-    let searchTerm = "";
+<script>
+/* INITIAL HINT */
+setTimeout(()=>document.getElementById("hint").style.display="none",5000);
 
-    document.querySelectorAll('.orderTypeBtn').forEach(btn => {
-      btn.onclick = () => { orderType = btn.dataset.type; renderOrderTypeForm(); };
-    });
+const book=document.getElementById("book");
+const cartSummary=document.getElementById("cartSummary");
+const cartModal=document.getElementById("cartModal");
+const cartItemsDiv=document.getElementById("cartItems");
+const totalSpan=document.getElementById("total");
+const checkoutBtn=document.getElementById("checkoutBtn");
+const placeOrderBtn=document.getElementById("placeOrderBtn");
 
-    function renderOrderTypeForm() {
-      let html = '';
-      if (orderType === 'dinein') {
-        html = `<input id="customerName" placeholder="Name" class="p-3 border border-gray-700 rounded w-full mb-3" required />
-          <input id="tableNumber" placeholder="Table Number" class="p-3 border border-gray-700 rounded w-full mb-3" required />
-          <input id="mobile" placeholder="Mobile Number" class="p-3 border border-gray-700 rounded w-full mb-3" required />`;
-      } else if (orderType === 'takeaway') {
-        html = `<input id="customerName" placeholder="Name" class="p-3 border border-gray-700 rounded w-full mb-3" required />
-          <input id="mobile" placeholder="Mobile Number" class="p-3 border border-gray-700 rounded w-full mb-3" required />
-          <input id="address" placeholder="Address" class="p-3 border border-gray-700 rounded w-full mb-3" required />`;
-      }
-      document.getElementById('orderTypeForm').innerHTML = html;
-    }
+const nameInput=document.getElementById("name");
+const mobileInput=document.getElementById("mobile");
+const tableInput=document.getElementById("table");
+const addressInput=document.getElementById("address");
+const orderType=document.getElementById("orderType");
 
-    async function initMenu(){
-      menu = await (await fetch('/menu.json')).json();
-      renderCatBtns();
-      renderMenu();
-    }
+const postOrderModal=document.getElementById("postOrderModal");
+const billLine=document.getElementById("billLine");
+const payCashBtn=document.getElementById("payCashBtn");
+const payQRBtn=document.getElementById("payQRBtn");
+const cashSection=document.getElementById("cashSection");
+const qrSection=document.getElementById("qrSection");
+const cashDoneBtn=document.getElementById("cashDoneBtn");
+const qrDoneBtn=document.getElementById("qrDoneBtn");
+const qrBox=document.getElementById("qrBox");
 
-    function renderCatBtns() {
-      const catBtns = document.getElementById('catBtns');
-      catBtns.innerHTML = '';
-      Object.keys(menu).forEach(cat => {
-        const btn = document.createElement('button');
-        btn.className = 'bg-amber-400 px-3 py-1 rounded font-bold text-black hover:bg-amber-500';
-        btn.innerText = cat;
-        btn.onclick = () => document.getElementById('cat-' + cat.replace(/\s+/g,'_')).scrollIntoView({behavior:'smooth'});
-        catBtns.appendChild(btn);
+let cart=[],page=0,locked=false,menu={};
+const ITEMS_PER_PAGE=window.innerWidth<500?6:8;
+
+/* NAV */
+function go(i){
+  locked=true;page=i;
+  book.style.transform=`translateX(-${i*100}vw)`;
+  setTimeout(()=>locked=false,600);
+}
+document.getElementById("prev").onclick=()=>page>0&&go(page-1);
+document.getElementById("next").onclick=()=>page<book.children.length-1&&go(page+1);
+
+/* SWIPE */
+let sx=0;
+document.addEventListener("touchstart",e=>sx=e.touches[0].clientX);
+document.addEventListener("touchend",e=>{
+  if(locked)return;
+  let dx=e.changedTouches[0].clientX-sx;
+  if(dx>80)document.getElementById("prev").onclick();
+  if(dx<-80)document.getElementById("next").onclick();
+});
+
+/* CART OPEN */
+checkoutBtn.onclick=()=>cartModal.style.display="block";
+function closeCart(){cartModal.style.display="none"}
+
+orderType.onchange=()=>{
+  tableInput.style.display=orderType.value==="dinein"?"block":"none";
+  addressInput.style.display=orderType.value==="takeaway"?"block":"none";
+};
+
+/* TOAST */
+function toast(msg){
+  const t=document.getElementById("toast");
+  t.innerText=msg;
+  t.style.display="block";
+  setTimeout(()=>t.style.display="none",1400);
+}
+
+/* MENU */
+fetch("/menu.json").then(r=>r.json()).then(m=>{menu=m;build();});
+
+function build(){
+  book.innerHTML+=`
+  <section class="page center">
+    <h1>Titishya Fast Food</h1>
+    <p>Near WOW Laundry — University Specials</p>
+    <p>📞 +91-XXXXXXXXXX</p>
+    <button class="primary" onclick="go(1)">Open Menu</button>
+  </section>`;
+
+  let contents="",start=2;
+  Object.keys(menu).forEach(c=>{
+    contents+=`<div class="contents-card" onclick="go(${start})">${c}</div>`;
+    start+=Math.ceil(menu[c].length/ITEMS_PER_PAGE);
+  });
+
+  book.innerHTML+=`
+  <section class="page center">
+    <h2>Menu</h2>
+    <div class="contents-grid">${contents}</div>
+    <div class="pageNo">2</div>
+  </section>`;
+
+  let pg=3;
+  for(let [cat,items] of Object.entries(menu)){
+    for(let i=0;i<items.length;i+=ITEMS_PER_PAGE){
+      let slice=items.slice(i,i+ITEMS_PER_PAGE);
+      let html=`<h2>${i===0?cat:cat+" (Continued)"}</h2><div class="items-grid">`;
+      slice.forEach(it=>{
+        const min=Math.min(...Object.values(it.variants));
+        let opts=`<option value="">Choose option</option>`+
+          Object.entries(it.variants).map(v=>`<option value="${v[1]}">${v[0]} — ₹${v[1]}</option>`).join("");
+        html+=`
+        <div class="item">
+          <b>${it.name}</b>
+          <div class="price">From ₹${min}</div>
+          <select>${opts}</select>
+          <button class="add" onclick="add('${it.name}',this)">Add</button>
+        </div>`;
       });
+      html+=`</div>`;
+      book.innerHTML+=`<section class="page">${html}<div class="pageNo">${pg++}</div></section>`;
     }
+  }
+}
 
-    function renderMenu() {
-      const container = document.getElementById('menuSections');
-      container.innerHTML = '';
-      for (const [category, items] of Object.entries(menu)) {
-        const filteredItems = (searchTerm && searchTerm.length>0) ?
-          items.filter(it => it.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            Object.keys(it.variants||{}).join(',').toLowerCase().includes(searchTerm.toLowerCase())
-          )
-          : items;
-        if(filteredItems.length === 0) continue;
-        const section = document.createElement('section');
-        section.className = 'bg-gray-900/60 rounded-2xl p-4 shadow-lg';
-        section.id = 'cat-' + category.replace(/\s+/g,'_');
-        let html = `<h3 class="text-lg font-semibold text-amber-200 mb-3">${category}</h3>`;
-        html += `<div class="grid md:grid-cols-2 lg:grid-cols-3 gap-3">`;
-        for (const it of filteredItems) {
-          const variants = it.variants || {};
-          const opts = Object.entries(variants).map(([k,v]) => `<option value="${v}">${k} — ₹${v}</option>`).join('');
-          html += `
-            <div class="bg-gray-800/40 p-3 rounded-xl flex flex-col justify-between items-center">
-              <div class="font-semibold text-center mb-1">${it.name}</div>
-              ${it.details ? `<div class="text-xs text-amber-200 mb-2">${it.details}</div>` : ''}
-              <select class="variant-select p-1 rounded mb-2" data-name="${it.name}">
-                ${opts}
-              </select>
-              <button class="addBtn px-3 py-1 bg-amber-400 text-black rounded-lg font-semibold w-full mb-1" data-name="${it.name}">Add</button>
-            </div>
-          `;
-        }
-        html += `</div>`;
-        section.innerHTML = html;
-        container.appendChild(section);
-      }
-      document.querySelectorAll('.addBtn').forEach(btn => {
-        btn.onclick = () => {
-          const name = btn.getAttribute('data-name');
-          const select = [...document.querySelectorAll('.variant-select')].find(s => s.dataset.name === name);
-          const price = Number(select.value);
-          const label = select.options[select.selectedIndex].text;
-          addToCart({ name: name + ' (' + label.split(' — ')[0] + ')', price, qty: 1 });
-        };
-      });
-    }
+/* CART LOGIC */
+function add(name,btn){
+  const sel=btn.previousElementSibling;
+  if(!sel.value){alert("Please choose an option");return;}
+  const price=+sel.value;
+  const variant=sel.options[sel.selectedIndex].text.split(" — ")[0];
 
-    document.getElementById('searchBox').oninput = function(){
-      searchTerm = this.value;
-      renderMenu();
-    };
+  let f=cart.find(i=>i.name===name&&i.price===price&&i.variant===variant);
+  if(f)f.qty++;
+  else cart.push({name,variant,price,qty:1});
 
-    function addToCart(item) {
-      const existing = cart.find(c => c.name === item.name && c.price === item.price);
-      if (existing) {
-        existing.qty++;
-      } else {
-        cart.push(item);
-      }
-      renderCart();
-      updateCartCount();
-      showToast('Added to cart!');
-    }
+  toast(`${name} (${variant}) added`);
+  updateCart();
+}
 
-    function showToast(msg) {
-      const toast = document.getElementById('added-toast');
-      toast.textContent = msg;
-      toast.style.display = 'block';
-      setTimeout(() => { toast.style.display = 'none'; }, 1400);
-    }
+function updateCart(){
+  cartItemsDiv.innerHTML="";
+  let total=0;
+  cart.forEach((i,idx)=>{
+    total+=i.qty*i.price;
+    cartItemsDiv.innerHTML+=`
+    <div class="cart-row">
+      <div>
+        ${i.name} <small>(${i.variant})</small><br><br>
+        ₹${i.price}
+      </div>
+      <div class="qty">
+        <button onclick="chg(${idx},-1)">−</button>
+        ${i.qty}
+        <button onclick="chg(${idx},1)">+</button>
+      </div>
+    </div>`;
+  });
+  totalSpan.innerText=total;
+  cartSummary.innerText=`🛒 ${cart.reduce((s,i)=>s+i.qty,0)} items | ₹${total}`;
+}
+function chg(i,d){
+  cart[i].qty+=d;
+  if(cart[i].qty<=0)cart.splice(i,1);
+  updateCart();
+}
 
-    function renderCart() {
-      const cartList = document.getElementById('cartList');
-      const mobileCartList = document.getElementById('mobileCartList');
-      if (!cartList || !mobileCartList) return;
-      const html = cart.map((c, i) => `
-        <div class="flex justify-between items-center">
-          <div>
-            <div class="font-medium">${c.name}</div>
-            <div class="text-sm text-amber-200">₹${c.price} × ${c.qty}</div>
-          </div>
-          <div class="flex flex-col items-end gap-2">
-            <div class="font-semibold">₹${c.price * c.qty}</div>
-            <div class="flex gap-2">
-              <button onclick="changeQty(${i},1)" class="px-2 py-1 bg-gray-700 rounded">+</button>
-              <button onclick="changeQty(${i},-1)" class="px-2 py-1 bg-red-600 rounded">-</button>
-            </div>
-          </div>
-        </div>
-      `).join('') || '<div class="text-amber-200">Cart is empty</div>';
-      cartList.innerHTML = html;
-      mobileCartList.innerHTML = html;
-      const subtotal = cart.reduce((s,c) => s + c.price * c.qty, 0);
-      document.getElementById('totalAmount').innerText = '₹' + subtotal;
-      document.getElementById('mobileTotalAmount').innerText = '₹' + subtotal;
-      document.getElementById('mobile-cart-summary').innerText = `🛒 ${cart.reduce((s,c)=>s+c.qty,0)} items | ₹${subtotal}`;
-    }
+/* POST-ORDER FLOW */
+let lastOrderId=null;
+let lastOrderTotal=0;
 
-    function changeQty(index, delta) {
-      cart[index].qty += delta;
-      if (cart[index].qty <= 0) cart.splice(index,1);
-      renderCart();
-      updateCartCount();
-    }
+function openPostOrderFlow(orderId,total){
+  lastOrderId=orderId;
+  lastOrderTotal=total;
+  billLine.innerText=`Bill Amount: ₹${total}`;
+  cashSection.style.display="none";
+  qrSection.style.display="none";
+  qrBox.innerHTML="";
+  postOrderModal.style.display="flex";
+}
 
-    function updateCartCount() {
-      document.getElementById('mobile-cart-summary').innerText =
-        `🛒 ${cart.reduce((s,c)=>s+c.qty,0)} items | ₹${cart.reduce((s,c)=>s+c.price*c.qty,0)}`;
-    }
+function resetToMenu(){
+  postOrderModal.style.display="none";
+  cart=[];
+  updateCart();
+  closeCart();
+  go(0);
+}
 
-    function toggleMobileCart(show) {
-      document.getElementById('mobile-cart-drawer').style.display = show ? 'block' : 'none';
-    }
+payCashBtn.onclick=()=>{
+  cashSection.style.display="block";
+  qrSection.style.display="none";
+  if(lastOrderId){
+    fetch(`/api/orders/${lastOrderId}/payment`,{
+      method:"PUT",
+      headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({paymentMethod:"cash"})
+    }).catch(()=>{});
+  }
+};
 
-    // POST-ORDER FLOW (same as Mughlai pattern)
-    const postOrderModal = document.getElementById('postOrderModal');
-    const billLine = document.getElementById('billLine');
-    const payCashBtn = document.getElementById('payCashBtn');
-    const payQRBtn = document.getElementById('payQRBtn');
-    const cashSection = document.getElementById('cashSection');
-    const qrSection = document.getElementById('qrSection');
-    const cashDoneBtn = document.getElementById('cashDoneBtn');
-    const qrDoneBtn = document.getElementById('qrDoneBtn');
-    const qrBox = document.getElementById('qrBox');
+payQRBtn.onclick=()=>{
+  cashSection.style.display="none";
+  qrSection.style.display="block";
 
-    let lastOrderId = null;
-    let lastOrderTotal = 0;
+  const upiId="titshya123@";
+  const upiName="Titishya Fast Food";
+  const note = lastOrderId ? `Order ${lastOrderId}` : "Titishya Order";
+  const amount = lastOrderTotal || 0;
 
-    function openPostOrderFlow(orderId,total){
-      lastOrderId = orderId;
-      lastOrderTotal = total;
-      billLine.innerText = `Bill Amount: ₹${total}`;
-      cashSection.style.display = "none";
-      qrSection.style.display = "none";
-      qrBox.innerHTML = "";
-      postOrderModal.style.display = "flex";
-    }
+  const upiUrl=`upi://pay?pa=${encodeURIComponent(upiId)}&pn=${encodeURIComponent(upiName)}&am=${amount}&cu=INR&tn=${encodeURIComponent(note)}`;
+  const qrApi=`https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=${encodeURIComponent(upiUrl)}`;
+  qrBox.innerHTML=`<img src="${qrApi}" alt="UPI QR" style="width:220px;height:220px;">`;
 
-    function resetToMenu(){
-      postOrderModal.style.display = "none";
-      cart = [];
-      renderCart();
-      updateCartCount();
-      toggleMobileCart(false);
-      window.scrollTo({top:0,behavior:'smooth'});
-    }
+  if(lastOrderId){
+    fetch(`/api/orders/${lastOrderId}/payment`,{
+      method:"PUT",
+      headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({paymentMethod:"upi"})
+    }).catch(()=>{});
+  }
+};
 
-    payCashBtn.onclick = () => {
-      cashSection.style.display = "block";
-      qrSection.style.display = "none";
-      if (lastOrderId) {
-        fetch(`/api/orders/${lastOrderId}/payment`,{
-          method:"PUT",
-          headers:{"Content-Type":"application/json"},
-          body:JSON.stringify({paymentMethod:"cash"})
-        }).catch(()=>{});
-      }
-    };
+qrDoneBtn.onclick=resetToMenu;
+cashDoneBtn.onclick=resetToMenu;
 
-    payQRBtn.onclick = () => {
-      cashSection.style.display = "none";
-      qrSection.style.display = "block";
+/* CHECKOUT */
+let submitting=false;
+placeOrderBtn.onclick=()=>{
+  if(submitting)return;
+  if(cart.length===0)return alert("Cart empty");
+  if(!nameInput.value.trim())return alert("Enter name");
+  if(!mobileInput.value.trim())return alert("Enter mobile");
+  if(!orderType.value)return alert("Select order type");
+  if(orderType.value==="dinein"&&!tableInput.value.trim())return alert("Enter table number");
+  if(orderType.value==="takeaway"&&!addressInput.value.trim())return alert("Enter address");
 
-      const upiId = "titshya123@"; // Titishya UPI ID
-      const upiName = "Titishya Fast Food";
-      const note = lastOrderId ? `Order ${lastOrderId}` : "Titishya Order";
-      const amount = lastOrderTotal || 0;
+  const totalAmount = cart.reduce((s,i)=>s + i.qty*i.price,0);
 
-      const upiUrl = `upi://pay?pa=${encodeURIComponent(upiId)}&pn=${encodeURIComponent(upiName)}&am=${amount}&cu=INR&tn=${encodeURIComponent(note)}`;
-      const qrApi = `https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=${encodeURIComponent(upiUrl)}`;
-      qrBox.innerHTML = `<img src="${qrApi}" alt="UPI QR" style="width:220px;height:220px;">`;
-      
-      if (lastOrderId) {
-        fetch(`/api/orders/${lastOrderId}/payment`,{
-          method:"PUT",
-          headers:{"Content-Type":"application/json"},
-          body:JSON.stringify({paymentMethod:"upi"})
-        }).catch(()=>{});
-      }
-    };
+  submitting=true;
+  placeOrderBtn.innerText="Placing order…";
 
-    qrDoneBtn.onclick = resetToMenu;
-    cashDoneBtn.onclick = resetToMenu;
+  fetch("/api/orders",{
+    method:"POST",
+    headers:{"Content-Type":"application/json"},
+    body:JSON.stringify({
+      orderType:orderType.value,
+      customerName:nameInput.value.trim(),
+      mobile:mobileInput.value.trim(),
+      tableNumber:orderType.value==="dinein"?tableInput.value.trim():"",
+      address:orderType.value==="takeaway"?addressInput.value.trim():"",
+      items:cart,
+      paymentMethod:null,
+      paymentStatus:"pending",
+      totalAmount
+    })
+  }).then(r=>{
+    if(!r.ok)throw new Error();
+    return r.json().catch(()=>({}));
+  }).then(data=>{
+    submitting=false;
+    placeOrderBtn.innerText="Place Order";
+    toast("Order placed successfully");
+    const orderId = data.orderId || data._id || null;
+    const total = data.totalAmount || totalAmount;
+    openPostOrderFlow(orderId,total);
+  }).catch(()=>{
+    submitting=false;
+    placeOrderBtn.innerText="Place Order";
+    alert("❌ Order failed");
+  });
+};
+</script>
 
-    async function checkout() {
-      if (!orderType) { alert('Select order type'); return; }
-      const name = document.getElementById('customerName')?.value?.trim();
-      const mobile = document.getElementById('mobile')?.value?.trim();
-      const tableNumber = document.getElementById('tableNumber')?.value?.trim() || '';
-      const address = document.getElementById('address')?.value?.trim() || '';
-      if (!name || !mobile || (orderType==='dinein'&&!tableNumber) || ((orderType!=='dinein')&&!address)) {
-        alert('Fill all required details'); return;
-      }
-      if (cart.length===0){ alert('Cart is empty'); return; }
-
-      const totalAmount = cart.reduce((s,c)=>s + c.price*c.qty,0);
-
-      const payload={
-        orderType,
-        customerName:name,
-        tableNumber,
-        mobile,
-        address,
-        items: cart.map(c=>({ name:c.name, price:c.price, qty:c.qty })),
-        paymentMethod:null,
-        paymentStatus:"pending",
-        totalAmount
-      };
-
-      try{
-        const resp = await fetch('/api/orders',{
-          method:'POST',
-          headers:{'Content-Type':'application/json'},
-          body:JSON.stringify(payload)
-        });
-        if (!resp.ok){ alert('Order failed'); return; }
-        const order = await resp.json();
-        const orderId = order.orderId || order._id || null;
-        const total = order.totalAmount || totalAmount;
-        openPostOrderFlow(orderId,total);
-      }catch(e){
-        alert('Order failed');
-      }
-    }
-
-    document.getElementById('checkoutBtn').onclick = checkout;
-    document.getElementById('mobileCheckoutBtn').onclick = checkout;
-
-    initMenu(); renderCart(); updateCartCount();
-  </script>
 </body>
 </html>
