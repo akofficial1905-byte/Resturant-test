@@ -91,7 +91,7 @@
     Added to cart!
   </div>
 
-  <!-- POST-ORDER PAYMENT MODAL (same idea as Mughlai) -->
+  <!-- POST-ORDER PAYMENT MODAL (like Mughlai) -->
   <div id="postOrderModal"
        style="position:fixed;inset:0;background:rgba(0,0,0,.8);display:none;align-items:center;justify-content:center;z-index:80;">
     <div style="background:#111827;padding:18px;border-radius:18px;width:90%;max-width:420px;text-align:center;">
@@ -278,7 +278,7 @@
       document.getElementById('mobile-cart-drawer').style.display = show ? 'block' : 'none';
     }
 
-    // POST-ORDER FLOW (similar to Mughlai)
+    // POST-ORDER FLOW (same as Mughlai pattern)
     const postOrderModal = document.getElementById('postOrderModal');
     const billLine = document.getElementById('billLine');
     const payCashBtn = document.getElementById('payCashBtn');
@@ -327,15 +327,15 @@
       cashSection.style.display = "none";
       qrSection.style.display = "block";
 
-      const upiId = "705469905@ptaxis"; // same UPI if you want
+      const upiId = "titshya123@"; // Titishya UPI ID
       const upiName = "Titishya Fast Food";
       const note = lastOrderId ? `Order ${lastOrderId}` : "Titishya Order";
       const amount = lastOrderTotal || 0;
 
       const upiUrl = `upi://pay?pa=${encodeURIComponent(upiId)}&pn=${encodeURIComponent(upiName)}&am=${amount}&cu=INR&tn=${encodeURIComponent(note)}`;
       const qrApi = `https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=${encodeURIComponent(upiUrl)}`;
-      qrBox.innerHTML = `<img src="${qrApi}" alt="UPI QR" style="width:220px;height:220px;">`;  // [web:46][web:54]
-
+      qrBox.innerHTML = `<img src="${qrApi}" alt="UPI QR" style="width:220px;height:220px;">`;
+      
       if (lastOrderId) {
         fetch(`/api/orders/${lastOrderId}/payment`,{
           method:"PUT",
@@ -385,7 +385,7 @@
         const total = order.totalAmount || totalAmount;
         openPostOrderFlow(orderId,total);
       }catch(e){
-        alert('Order failed'); 
+        alert('Order failed');
       }
     }
 
